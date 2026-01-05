@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL - Data Input</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-truck-moving fa-2x"></i>
+                <div>
+                    <h1>TSL Logistics</h1>
+                    <p>Shortage Data Input</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="code-generator.html" class="nav-link"><i class="fas fa-key"></i> Code Generator</a>
+                <a href="admin-dashboard.html" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="user-input.html" class="nav-link active"><i class="fas fa-edit"></i> Input Data</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h2><i class="fas fa-clipboard-list"></i> Shortage Report Form</h2>
+            <p>Record delivery shortages and related information for Nigeria Breweries trips</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-truck-loading"></i> Trip & Delivery Information</h3>
+            </div>
+            <div class="card-body">
+                <form id="shortageForm" onsubmit="submitForm(event)">
+                    <div class="form-section">
+                        <h4><i class="fas fa-calendar-alt"></i> Basic Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date" class="form-label required">
+                                    <i class="fas fa-calendar-day"></i> Date
+                                </label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       id="date" 
+                                       required
+                                       value="">
+                                <div class="form-hint">Date of delivery</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="shipmentNumber" class="form-label required">
+                                    <i class="fas fa-barcode"></i> Shipment Number
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="shipmentNumber" 
+                                       placeholder="e.g., SH20231215001"
+                                       required
+                                       maxlength="20">
+                                <div class="form-hint">Unique shipment identifier</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-user-tie"></i> Customer Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerName" class="form-label required">
+                                    <i class="fas fa-store"></i> Customer Name
+                                </label>
+                                <select class="form-control" id="customerName" required>
+                                    <option value="">Select Customer</option>
+                                    <option value="Shoprite Ikeja">Shoprite Ikeja</option>
+                                    <option value="Spar Victoria Island">Spar Victoria Island</option>
+                                    <option value="Next Supermarket">Next Supermarket</option>
+                                    <option value="Ebeano Supermarket">Ebeano Supermarket</option>
+                                    <option value="Justrite Superstore">Justrite Superstore</option>
+                                    <option value="Prince Ebeano">Prince Ebeano</option>
+                                    <option value="Hubmart Stores">Hubmart Stores</option>
+                                    <option value="Market Square">Market Square</option>
+                                    <option value="Other">Other (specify in notes)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="truckNumber" class="form-label required">
+                                    <i class="fas fa-truck"></i> Truck Number
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="truckNumber" 
+                                       placeholder="e.g., TSL456"
+                                       required
+                                       pattern="TSL\d{3}"
+                                       title="Format: TSL followed by 3 digits">
+                                <div class="form-hint">Format: TSL followed by 3 digits (e.g., TSL456)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-id-card"></i> Staff & Driver Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="staffId" class="form-label required">
+                                    <i class="fas fa-id-badge"></i> Staff ID
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="staffId" 
+                                       placeholder="e.g., TSL1001"
+                                       required
+                                       pattern="TSL\d{4}"
+                                       title="Format: TSL followed by 4 digits">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="driverName" class="form-label required">
+                                    <i class="fas fa-user"></i> Driver Name
+                                </label>
+                                <select class="form-control" id="driverName" required>
+                                    <option value="">Select Driver</option>
+                                    <option value="James Okafor">James Okafor</option>
+                                    <option value="Musa Ibrahim">Musa Ibrahim</option>
+                                    <option value="Chinedu Okoro">Chinedu Okoro</option>
+                                    <option value="Adebayo Tunde">Adebayo Tunde</option>
+                                    <option value="Johnbull Efosa">Johnbull Efosa</option>
+                                    <option value="Suleiman Bala">Suleiman Bala</option>
+                                    <option value="Emeka Nwosu">Emeka Nwosu</option>
+                                    <option value="Fatima Abdullahi">Fatima Abdullahi</option>
+                                    <option value="New Driver">New Driver (specify in notes)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-box-open"></i> Product Information</h4>
+                        <div class="form-group">
+                            <label for="productDescription" class="form-label required">
+                                <i class="fas fa-wine-bottle"></i> Product Description
+                            </label>
+                            <select class="form-control" id="productDescription" required>
+                                <option value="">Select Product</option>
+                                <option value="Star Lager Beer - 50cl Bottle">Star Lager Beer - 50cl Bottle</option>
+                                <option value="Gulder Beer - 60cl Bottle">Gulder Beer - 60cl Bottle</option>
+                                <option value="Legend Stout - 60cl Bottle">Legend Stout - 60cl Bottle</option>
+                                <option value="33 Export Beer - 60cl Bottle">33 Export Beer - 60cl Bottle</option>
+                                <option value="Hero Lager Beer - 50cl Bottle">Hero Lager Beer - 50cl Bottle</option>
+                                <option value="Star Radler - 50cl Can">Star Radler - 50cl Can</option>
+                                <option value="Trophy Lager - 50cl Bottle">Trophy Lager - 50cl Bottle</option>
+                                <option value="Goldberg Lager - 50cl Bottle">Goldberg Lager - 50cl Bottle</option>
+                                <option value="Other">Other Product</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-balance-scale"></i> Quantity Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="quantityLoaded" class="form-label required">
+                                    <i class="fas fa-arrow-up"></i> Quantity Loaded
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="quantityLoaded" 
+                                       placeholder="0"
+                                       required
+                                       min="1"
+                                       step="1"
+                                       onchange="calculateShortage()">
+                                <div class="form-hint">Total units loaded at departure</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="quantityReceived" class="form-label required">
+                                    <i class="fas fa-arrow-down"></i> Quantity Received
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="quantityReceived" 
+                                       placeholder="0"
+                                       required
+                                       min="0"
+                                       step="1"
+                                       onchange="calculateShortage()">
+                                <div class="form-hint">Total units received at destination</div>
+                            </div>
+                        </div>
+                        
+                        <div class="shortage-display" id="shortageDisplay" style="display: none;">
+                            <div class="shortage-info">
+                                <div class="shortage-item">
+                                    <span>Units Short:</span>
+                                    <strong id="unitsShort">0</strong>
+                                </div>
+                                <div class="shortage-item">
+                                    <span>Shortage Percentage:</span>
+                                    <strong id="shortagePercent">0%</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-times-circle"></i> Reject & Return Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customerReject" class="form-label">
+                                    <i class="fas fa-ban"></i> Customer Reject Quantity
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="customerReject" 
+                                       placeholder="0"
+                                       min="0"
+                                       step="1">
+                                <div class="form-hint">Quantity rejected by customer</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="rejectsValue" class="form-label">
+                                    <i class="fas fa-money-bill-wave"></i> Total Rejects Value (₦)
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="rejectsValue" 
+                                       placeholder="0"
+                                       min="0"
+                                       step="100">
+                                <div class="form-hint">Monetary value of rejected items</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="returnReceived" class="form-label">
+                                <i class="fas fa-undo"></i> Return Received
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="returnReceived" 
+                                   placeholder="0"
+                                   min="0"
+                                   step="1">
+                            <div class="form-hint">Quantity returned to warehouse</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-gavel"></i> Liability & Shortage</h4>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" 
+                                       id="driversLiable" 
+                                       onchange="toggleLiability()">
+                                <label for="driversLiable" class="checkbox-label">
+                                    <i class="fas fa-user-shield"></i> Driver is Liable for Shortage
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="liableAmount" class="form-label">
+                                    <i class="fas fa-hand-holding-usd"></i> Liable Amount (₦)
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="liableAmount" 
+                                       placeholder="0"
+                                       min="0"
+                                       step="100"
+                                       disabled>
+                                <div class="form-hint">Amount driver is liable for</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="totalShortage" class="form-label required">
+                                    <i class="fas fa-exclamation-triangle"></i> Total Shortage Value (₦)
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="totalShortage" 
+                                       placeholder="0"
+                                       required
+                                       min="0"
+                                       step="100">
+                                <div class="form-hint">Total monetary value of shortage</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4><i class="fas fa-sticky-note"></i> Additional Information</h4>
+                        <div class="form-group">
+                            <label for="notes" class="form-label">
+                                <i class="fas fa-comment"></i> Notes
+                            </label>
+                            <textarea class="form-control" 
+                                      id="notes" 
+                                      placeholder="Enter any additional notes, explanations, or special circumstances..."
+                                      rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Clear Form
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Recently Submitted Reports</h3>
+                <button class="btn btn-sm btn-secondary" onclick="refreshSubmissions()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Shipment</th>
+                                <th>Driver</th>
+                                <th>Loaded</th>
+                                <th>Received</th>
+                                <th>Shortage (₦)</th>
+                                <th>Liability</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentSubmissions">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-info" id="tableInfo">
+                    Loading recent submissions...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>TSL Logistics &copy; 2023 - Nigeria's Premier Logistics and Transportation Services Provider</p>
+        <p>Strategic Hubs: Lagos, Ogun, and Cross River States | BBB Credit Rating (Augusto 2019)</p>
+    </footer>
+
+    <div id="notificationContainer"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // SheetDB Configuration
+        const SHEETDB_ENDPOINT = 'https://sheetdb.io/api/v1/YOUR_SHEET_ID'; // REPLACE WITH YOUR ACTUAL ENDPOINT
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // Load recent submissions
+            loadRecentSubmissions();
+            
+            // Add input validation
+            setupFormValidation();
+        });
+
+        function setupFormValidation() {
+            const form = document.getElementById('shortageForm');
+            
+            // Real-time validation
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+            });
+        }
+
+        function validateField(field) {
+            if (field.hasAttribute('required') && !field.value.trim()) {
+                field.classList.add('invalid');
+                return false;
+            }
+            
+            if (field.hasAttribute('pattern')) {
+                const pattern = new RegExp(field.getAttribute('pattern'));
+                if (!pattern.test(field.value)) {
+                    field.classList.add('invalid');
+                    return false;
+                }
+            }
+            
+            field.classList.remove('invalid');
+            return true;
+        }
+
+        function calculateShortage() {
+            const loaded = parseInt(document.getElementById('quantityLoaded').value) || 0;
+            const received = parseInt(document.getElementById('quantityReceived').value) || 0;
+            
+            if (loaded > 0 && received >= 0) {
+                const unitsShort = loaded - received;
+                const shortagePercent = ((unitsShort / loaded) * 100).toFixed(1);
+                
+                document.getElementById('unitsShort').textContent = unitsShort;
+                document.getElementById('shortagePercent').textContent = `${shortagePercent}%`;
+                document.getElementById('shortageDisplay').style.display = 'block';
+                
+                // Auto-calculate total shortage if not set
+                if (!document.getElementById('totalShortage').value) {
+                    const avgUnitValue = 1500; // Average value per unit in Naira
+                    const estimatedShortage = unitsShort * avgUnitValue;
+                    document.getElementById('totalShortage').value = estimatedShortage;
+                }
+            } else {
+                document.getElementById('shortageDisplay').style.display = 'none';
+            }
+        }
+
+        function toggleLiability() {
+            const liableCheckbox = document.getElementById('driversLiable');
+            const liableAmountInput = document.getElementById('liableAmount');
+            
+            liableAmountInput.disabled = !liableCheckbox.checked;
+            
+            if (!liableCheckbox.checked) {
+                liableAmountInput.value = '';
+            } else {
+                // Suggest 50% of total shortage as liable amount
+                const totalShortage = parseInt(document.getElementById('totalShortage').value) || 0;
+                if (totalShortage > 0) {
+                    liableAmountInput.value = Math.floor(totalShortage * 0.5);
+                }
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                showNotification('Please fill in all required fields correctly', 'error');
+                return;
+            }
+            
+            // Prepare form data
+            const formData = {
+                date: document.getElementById('date').value,
+                shipmentNumber: document.getElementById('shipmentNumber').value.trim(),
+                customerName: document.getElementById('customerName').value,
+                truckNumber: document.getElementById('truckNumber').value.trim().toUpperCase(),
+                staffId: document.getElementById('staffId').value.trim().toUpperCase(),
+                driverName: document.getElementById('driverName').value,
+                productDescription: document.getElementById('productDescription').value,
+                quantityLoaded: parseInt(document.getElementById('quantityLoaded').value) || 0,
+                quantityReceived: parseInt(document.getElementById('quantityReceived').value) || 0,
+                customerReject: parseInt(document.getElementById('customerReject').value) || 0,
+                rejectsValue: parseInt(document.getElementById('rejectsValue').value) || 0,
+                returnReceived: parseInt(document.getElementById('returnReceived').value) || 0,
+                driversLiable: document.getElementById('driversLiable').checked ? 'Yes' : 'No',
+                liableAmount: parseInt(document.getElementById('liableAmount').value) || 0,
+                totalShortage: parseInt(document.getElementById('totalShortage').value) || 0,
+                notes: document.getElementById('notes').value.trim(),
+                submittedAt: new Date().toISOString(),
+                status: 'Pending Review'
+            };
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            try {
+                // Send to SheetDB
+                const response = await axios.post(SHEETDB_ENDPOINT, {
+                    data: [formData]
+                });
+                
+                if (response.status === 201) {
+                    showNotification('Report submitted successfully!', 'success');
+                    
+                    // Add to local sample data for immediate display
+                    formData.id = sampleData.length + 1;
+                    sampleData.push(formData);
+                    
+                    // Reset form
+                    document.getElementById('shortageForm').reset();
+                    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('shortageDisplay').style.display = 'none';
+                    
+                    // Refresh recent submissions
+                    loadRecentSubmissions();
+                    
+                    // Update driver data
+                    updateDriverData(formData);
+                } else {
+                    throw new Error('Failed to submit data');
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                
+                // Fallback: Save to localStorage if SheetDB fails
+                saveToLocalStorage(formData);
+                showNotification('Report saved locally (offline mode)', 'warning');
+                
+                // Still update UI
+                formData.id = sampleData.length + 1;
+                sampleData.push(formData);
+                loadRecentSubmissions();
+                updateDriverData(formData);
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Report';
+            }
+        }
+
+        function saveToLocalStorage(formData) {
+            const localSubmissions = JSON.parse(localStorage.getItem('tslLocalSubmissions') || '[]');
+            localSubmissions.push({
+                ...formData,
+                localSave: true,
+                localSaveTime: new Date().toISOString()
+            });
+            localStorage.setItem('tslLocalSubmissions', JSON.stringify(localSubmissions));
+        }
+
+        async function syncLocalSubmissions() {
+            const localSubmissions = JSON.parse(localStorage.getItem('tslLocalSubmissions') || '[]');
+            
+            if (localSubmissions.length === 0) return;
+            
+            try {
+                // Try to sync each local submission
+                for (const submission of localSubmissions) {
+                    if (!submission.synced) {
+                        await axios.post(SHEETDB_ENDPOINT, {
+                            data: [{
+                                date: submission.date,
+                                shipmentNumber: submission.shipmentNumber,
+                                customerName: submission.customerName,
+                                truckNumber: submission.truckNumber,
+                                staffId: submission.staffId,
+                                driverName: submission.driverName,
+                                productDescription: submission.productDescription,
+                                quantityLoaded: submission.quantityLoaded,
+                                quantityReceived: submission.quantityReceived,
+                                customerReject: submission.customerReject,
+                                rejectsValue: submission.rejectsValue,
+                                returnReceived: submission.returnReceived,
+                                driversLiable: submission.driversLiable,
+                                liableAmount: submission.liableAmount,
+                                totalShortage: submission.totalShortage,
+                                notes: submission.notes,
+                                submittedAt: submission.submittedAt,
+                                status: 'Synced from Local'
+                            }]
+                        });
+                        
+                        // Mark as synced
+                        submission.synced = true;
+                    }
+                }
+                
+                // Update localStorage
+                localStorage.setItem('tslLocalSubmissions', JSON.stringify(localSubmissions));
+                showNotification('Local data synced successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Sync error:', error);
+                // Don't show error to user - will try again later
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            const requiredFields = document.querySelectorAll('#shortageForm [required]');
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+            
+            // Validate quantity received <= quantity loaded
+            const loaded = parseInt(document.getElementById('quantityLoaded').value) || 0;
+            const received = parseInt(document.getElementById('quantityReceived').value) || 0;
+            if (received > loaded) {
+                showNotification('Quantity received cannot be greater than quantity loaded', 'error');
+                document.getElementById('quantityReceived').classList.add('invalid');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        function updateDriverData(formData) {
+            const driver = formData.driverName;
+            if (!driverData[driver]) {
+                driverData[driver] = {
+                    trips: 0,
+                    totalShortage: 0,
+                    liableAmount: 0,
+                    tripsThisMonth: 0,
+                    monthShortage: 0
+                };
+            }
+            
+            driverData[driver].trips++;
+            driverData[driver].totalShortage += formData.totalShortage || 0;
+            driverData[driver].liableAmount += formData.liableAmount || 0;
+            
+            // Check if this month
+            const today = new Date();
+            const recordDate = new Date(formData.date);
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+                driverData[driver].tripsThisMonth++;
+                driverData[driver].monthShortage += formData.totalShortage || 0;
+            }
+        }
+
+        async function loadRecentSubmissions() {
+            try {
+                // Try to load from SheetDB
+                const response = await axios.get(SHEETDB_ENDPOINT + '?limit=10&sort_by=submittedAt&sort_order=desc');
+                
+                if (response.data && Array.isArray(response.data)) {
+                    displaySubmissions(response.data);
+                } else {
+                    // Fallback to sample data
+                    displaySubmissions(getRecentSampleData());
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+                // Use sample data as fallback
+                displaySubmissions(getRecentSampleData());
+                
+                // Try to sync local submissions
+                syncLocalSubmissions();
+            }
+        }
+
+        function getRecentSampleData() {
+            return [...sampleData]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 10);
+        }
+
+        function displaySubmissions(submissions) {
+            const tableBody = document.getElementById('recentSubmissions');
+            const tableInfo = document.getElementById('tableInfo');
+            
+            tableBody.innerHTML = '';
+            
+            if (submissions.length === 0) {
+                tableInfo.textContent = 'No submissions found';
+                return;
+            }
+            
+            submissions.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const shortage = item.totalShortage || 0;
+                const liability = item.driversLiable === 'Yes' ? 'Liable' : 'Not Liable';
+                const statusClass = liability === 'Liable' ? 'badge-danger' : 'badge-warning';
+                
+                row.innerHTML = `
+                    <td>${item.date || 'N/A'}</td>
+                    <td><code>${item.shipmentNumber || 'N/A'}</code></td>
+                    <td>${item.driverName || 'N/A'}</td>
+                    <td>${item.quantityLoaded || 0}</td>
+                    <td>${item.quantityReceived || 0}</td>
+                    <td><strong>₦${shortage.toLocaleString()}</strong></td>
+                    <td><span class="badge ${statusClass}">${liability}</span></td>
+                    <td>
+                        <span class="badge ${item.localSave ? 'badge-info' : 'badge-success'}">
+                            ${item.localSave ? 'Local' : 'Submitted'}
+                        </span>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            tableInfo.textContent = `Showing ${submissions.length} most recent submissions`;
+        }
+
+        function refreshSubmissions() {
+            showNotification('Refreshing submissions...', 'info');
+            loadRecentSubmissions();
+        }
+
+        // Initialize sample data
+        loadSampleData();
+    </script>
+
+    <style>
+        /* Form specific styles */
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .form-section h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .shortage-display {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .shortage-info {
+            display: flex;
+            gap: 30px;
+        }
+
+        .shortage-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shortage-item span {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .shortage-item strong {
+            font-size: 18px;
+            color: var(--danger);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-label {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .table-info {
+            text-align: center;
+            padding: 10px;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        input.invalid,
+        select.invalid {
+            border-color: var(--danger) !important;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .shortage-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html>
