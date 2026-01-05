@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL - Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-truck-moving fa-2x"></i>
+                <div>
+                    <h1>TSL Logistics</h1>
+                    <p>Admin Login Portal</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="code-generator.html" class="nav-link"><i class="fas fa-key"></i> Code Generator</a>
+                <a href="login.html" class="nav-link active"><i class="fas fa-sign-in-alt"></i> Admin Login</a>
+                <a href="user-input.html" class="nav-link"><i class="fas fa-edit"></i> Input Data</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2><i class="fas fa-lock"></i> Admin Access</h2>
+                <p>Enter your access code to continue to the dashboard</p>
+            </div>
+            
+            <div class="login-body">
+                <div class="form-group">
+                    <label for="accessCode" class="form-label">
+                        <i class="fas fa-key"></i> Access Code
+                    </label>
+                    <input type="text" 
+                           class="form-control form-control-lg" 
+                           id="accessCode" 
+                           placeholder="XXXX-XXXX-XXXX"
+                           maxlength="14"
+                           autocomplete="off">
+                    <div class="form-hint">
+                        <i class="fas fa-info-circle"></i> Enter the code provided by your administrator
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block btn-lg" onclick="validateCode()">
+                        <i class="fas fa-sign-in-alt"></i> Access Dashboard
+                    </button>
+                </div>
+                
+                <div class="login-links">
+                    <a href="code-generator.html" class="login-link">
+                        <i class="fas fa-question-circle"></i> Need an access code?
+                    </a>
+                    <a href="index.html" class="login-link">
+                        <i class="fas fa-home"></i> Return to Home
+                    </a>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <div class="security-notice">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Security Notice:</strong>
+                        <p>Access codes are valid for 24 hours only. Do not share codes with unauthorized personnel.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-info">
+            <h3><i class="fas fa-chart-line"></i> Dashboard Features</h3>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Real-time shortage analytics</li>
+                <li><i class="fas fa-check-circle"></i> Driver performance tracking</li>
+                <li><i class="fas fa-check-circle"></i> Monthly shortage reports</li>
+                <li><i class="fas fa-check-circle"></i> Interactive charts and graphs</li>
+                <li><i class="fas fa-check-circle"></i> Export functionality</li>
+                <li><i class="fas fa-check-circle"></i> Search and filter capabilities</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>TSL Logistics &copy; 2023 - Nigeria's Premier Logistics and Transportation Services Provider</p>
+        <p>Strategic Hubs: Lagos, Ogun, and Cross River States | BBB Credit Rating (Augusto 2019)</p>
+    </footer>
+
+    <div id="notificationContainer"></div>
+
+    <script src="script.js"></script>
+    <script>
+        // Format code input as user types
+        document.getElementById('accessCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Z0-9]/gi, '');
+            
+            if (value.length > 4 && value.length <= 8) {
+                value = value.slice(0, 4) + '-' + value.slice(4);
+            } else if (value.length > 8) {
+                value = value.slice(0, 4) + '-' + value.slice(4, 8) + '-' + value.slice(8, 12);
+            }
+            
+            e.target.value = value.toUpperCase();
+        });
+    </script>
+</body>
+</html>
