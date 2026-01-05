@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL Logistics - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-truck-moving fa-2x"></i>
+                <div>
+                    <h1>TSL Logistics</h1>
+                    <p>Nigeria's Premier Logistics Provider</p>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+                <a href="code-generator.html" class="nav-link"><i class="fas fa-key"></i> Code Generator</a>
+                <a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Admin Login</a>
+                <a href="user-input.html" class="nav-link"><i class="fas fa-edit"></i> Input Data</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero">
+            <h2>Shortage Tracking System</h2>
+            <p>Document and track delivery shortages for Nigeria Breweries operations</p>
+        </div>
+
+        <div class="dashboard-overview">
+            <h3>System Overview</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #0033a0;">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalTrips">0</h3>
+                        <p>Total Trips Tracked</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #e31837;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalShortage">₦0</h3>
+                        <p>Total Shortage Value</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #17a2b8;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalDrivers">0</h3>
+                        <p>Drivers Tracked</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #28a745;">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="currentMonth">0</h3>
+                        <p>Current Month Trips</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h4>Secure Access</h4>
+                <p>Generate unique codes for admin access instead of traditional passwords</p>
+                <a href="code-generator.html" class="btn btn-primary">Generate Code</a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4>Admin Dashboard</h4>
+                <p>Comprehensive analytics and reporting for better decision making</p>
+                <a href="login.html" class="btn btn-primary">Access Dashboard</a>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h4>Data Entry</h4>
+                <p>Submit delivery shortage data with complete trip information</p>
+                <a href="user-input.html" class="btn btn-primary">Enter Data</a>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                <a href="user-input.html" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-plus-circle"></i> New Shortage Report
+                </a>
+                <a href="login.html" class="btn btn-primary btn-lg">
+                    <i class="fas fa-chart-bar"></i> View Analytics
+                </a>
+                <a href="code-generator.html" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-shield"></i> Generate Admin Code
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>TSL Logistics &copy; 2023 - Nigeria's Premier Logistics and Transportation Services Provider</p>
+        <p>Strategic Hubs: Lagos, Ogun, and Cross River States | BBB Credit Rating (Augusto 2019)</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load sample stats
+            loadSampleData();
+            updateHomeStats();
+        });
+    </script>
+</body>
+</html>
