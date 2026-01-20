@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL Admin Access</title>
+    <style>
+        :root {
+            --deep-red: #8B0000;
+            --light-red: #FFE5E5;
+            --dark-red: #660000;
+            --gray-bg: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray-bg);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--dark-red), var(--deep-red));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .code-section, .access-section {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        
+        .section-header {
+            border-bottom: 3px solid var(--deep-red);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-header h2 {
+            color: var(--deep-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--deep-red);
+            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-generate {
+            background-color: var(--deep-red);
+            color: white;
+        }
+        
+        .btn-generate:hover {
+            background-color: var(--dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 0, 0, 0.2);
+        }
+        
+        .btn-access {
+            background-color: #2E7D32;
+            color: white;
+        }
+        
+        .btn-access:hover {
+            background-color: #1B5E20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+        }
+        
+        .code-display {
+            background-color: var(--light-red);
+            border: 2px dashed var(--deep-red);
+            border-radius: 5px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--dark-red);
+        }
+        
+        .code-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #E8F5E9;
+            border-radius: 5px;
+            color: #2E7D32;
+            font-size: 0.9rem;
+        }
+        
+        .message {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+        
+        .error {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 2rem;
+        }
+        
+        .recent-codes {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .recent-codes h4 {
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        
+        .code-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .code-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 3px;
+            border-left: 3px solid var(--deep-red);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TSL Admin Access System</h1>
+        <p>Generate and Access Admin Dashboard Codes</p>
+        <div class="nav-links">
+            <a href="index.html">Data Entry</a>
+            <a href="code-access.html">Admin Access</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="code-section">
+            <div class="section-header">
+                <h2>🔐 Generate Admin Code</h2>
+                <p>Generate a new access code for the admin dashboard</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="adminName">Admin Name</label>
+                <input type="text" id="adminName" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="codePurpose">Purpose</label>
+                <select id="codePurpose" class="form-group">
+                    <option value="">Select purpose</option>
+                    <option value="daily_report">Daily Report Generation</option>
+                    <option value="data_analysis">Data Analysis</option>
+                    <option value="system_maintenance">System Maintenance</option>
+                    <option value="audit">Audit & Verification</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="codeExpiry">Code Validity (Hours)</label>
+                <select id="codeExpiry" class="form-group">
+                    <option value="1">1 Hour</option>
+                    <option value="4">4 Hours</option>
+                    <option value="8">8 Hours</option>
+                    <option value="24" selected>24 Hours</option>
+                    <option value="168">7 Days</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-generate" onclick="generateCode()">Generate Access Code</button>
+            
+            <div id="generatedCode" class="code-display" style="display: none;">
+                <div id="codeValue"></div>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem;">Expires: <span id="codeExpiryTime"></span></div>
+            </div>
+            
+            <div class="code-info">
+                <strong>⚠️ Important:</strong> Generated codes are single-use and time-limited. Store them securely and share only with authorized personnel.
+            </div>
+            
+            <div class="recent-codes">
+                <h4>📋 Recently Generated Codes</h4>
+                <div class="code-list" id="recentCodes">
+                    <!-- Recent codes will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="access-section">
+            <div class="section-header">
+                <h2>🚪 Access Dashboard</h2>
+                <p>Enter a valid code to access the admin dashboard</p>
+            </div>
+            
+            <div class="message" id="accessMessage"></div>
+            
+            <div class="form-group">
+                <label for="accessCode">Access Code</label>
+                <input type="text" id="accessCode" placeholder="Enter 8-digit access code">
+            </div>
+            
+            <button class="btn btn-access" onclick="validateCode()">Access Dashboard</button>
+            
+            <div class="code-info" style="margin-top: 2rem;">
+                <strong>📝 Instructions:</strong>
+                <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li>Generate an access code using the left panel</li>
+                    <li>Enter the code in the field above</li>
+                    <li>Click "Access Dashboard" to proceed</li>
+                    <li>Codes expire based on selected validity period</li>
+                </ol>
+            </div>
+            
+            <div class="recent-codes">
+                <h4>⚙️ Admin Settings</h4>
+                <div style="margin-top: 1rem;">
+                    <button class="btn" onclick="clearAllCodes()" style="background-color: #f44336; color: white;">Clear All Codes</button>
+                    <button class="btn" onclick="resetSystem()" style="background-color: #ff9800; color: white; margin-top: 0.5rem;">Reset System</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2023 Transport Services Limited (TSL) - Confidential Admin System</p>
+        <p>All access is logged and monitored for security purposes</p>
+    </div>
+
+    <script>
+        // Store generated codes in localStorage
+        const CODES_STORAGE_KEY = 'tsl_admin_codes';
+        const ACTIVE_CODE_KEY = 'tsl_active_code';
+        
+        // Initialize from localStorage
+        let generatedCodes = JSON.parse(localStorage.getItem(CODES_STORAGE_KEY)) || [];
+        
+        // Display recent codes on load
+        document.addEventListener('DOMContentLoaded', function() {
+            displayRecentCodes();
+        });
+        
+        function generateCode() {
+            const adminName = document.getElementById('adminName').value.trim();
+            const purpose = document.getElementById('codePurpose').value;
+            const expiryHours = parseInt(document.getElementById('codeExpiry').value);
+            
+            if (!adminName || !purpose) {
+                showAccessMessage('Please fill in all fields to generate a code.', 'error');
+                return;
+            }
+            
+            // Generate 8-digit code
+            const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+            
+            // Calculate expiry time
+            const expiryTime = new Date();
+            expiryTime.setHours(expiryTime.getHours() + expiryHours);
+            
+            // Create code object
+            const codeObject = {
+                code: code,
+                adminName: adminName,
+                purpose: purpose,
+                generated: new Date().toISOString(),
+                expires: expiryTime.toISOString(),
+                used: false,
+                usedAt: null
+            };
+            
+            // Add to array and save
+            generatedCodes.unshift(codeObject);
+            if (generatedCodes.length > 10) {
+                generatedCodes = generatedCodes.slice(0, 10); // Keep only last 10 codes
+            }
+            localStorage.setItem(CODES_STORAGE_KEY, JSON.stringify(generatedCodes));
+            
+            // Display generated code
+            document.getElementById('codeValue').textContent = code;
+            document.getElementById('codeExpiryTime').textContent = expiryTime.toLocaleString();
+            document.getElementById('generatedCode').style.display = 'block';
+            
+            // Show success message
+            showAccessMessage(`Code generated successfully for ${adminName}!`, 'success');
+            
+            // Update recent codes display
+            displayRecentCodes();
+            
+            // Auto-copy to clipboard
+            copyToClipboard(code);
+        }
+        
+        function validateCode() {
+            const enteredCode = document.getElementById('accessCode').value.trim().toUpperCase();
+            
+            if (!enteredCode) {
+                showAccessMessage('Please enter an access code.', 'error');
+                return;
+            }
+            
+            // Find the code in generated codes
+            const codeIndex = generatedCodes.findIndex(c => c.code === enteredCode);
+            
+            if (codeIndex === -1) {
+                showAccessMessage('Invalid access code.', 'error');
+                return;
+            }
+            
+            const codeObject = generatedCodes[codeIndex];
+            
+            // Check if code is already used
+            if (codeObject.used) {
+                showAccessMessage('This code has already been used.', 'error');
+                return;
+            }
+            
+            // Check if code is expired
+            const now = new Date();
+            const expiryTime = new Date(codeObject.expires);
+            
+            if (now > expiryTime) {
+                showAccessMessage('This code has expired.', 'error');
+                return;
+            }
+            
+            // Mark code as used
+            codeObject.used = true;
+            codeObject.usedAt = now.toISOString();
+            generatedCodes[codeIndex] = codeObject;
+            localStorage.setItem(CODES_STORAGE_KEY, JSON.stringify(generatedCodes));
+            
+            // Store active code for dashboard access
+            localStorage.setItem(ACTIVE_CODE_KEY, JSON.stringify({
+                code: enteredCode,
+                adminName: codeObject.adminName,
+                expires: codeObject.expires
+            }));
+            
+            // Show success message and redirect
+            showAccessMessage('Access granted! Redirecting to dashboard...', 'success');
+            
+            // Update recent codes display
+            displayRecentCodes();
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+        
+        function displayRecentCodes() {
+            const recentCodesDiv = document.getElementById('recentCodes');
+            recentCodesDiv.innerHTML = '';
+            
+            if (generatedCodes.length === 0) {
+                recentCodesDiv.innerHTML = '<p style="color: #666; text-align: center;">No codes generated yet</p>';
+                return;
+            }
+            
+            generatedCodes.forEach((codeObj, index) => {
+                const codeItem = document.createElement('div');
+                codeItem.className = 'code-item';
+                
+                const now = new Date();
+                const expiryTime = new Date(codeObj.expires);
+                const isExpired = now > expiryTime;
+                const status = codeObj.used ? 'Used' : isExpired ? 'Expired' : 'Active';
+                const statusColor = codeObj.used ? '#f44336' : isExpired ? '#ff9800' : '#4CAF50';
+                
+                codeItem.innerHTML = `
+                    <div>
+                        <strong>${codeObj.code}</strong><br>
+                        <small>${codeObj.adminName} • ${codeObj.purpose}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="color: ${statusColor}; font-weight: bold;">${status}</span><br>
+                        <small>${new Date(codeObj.generated).toLocaleDateString()}</small>
+                    </div>
+                `;
+                
+                recentCodesDiv.appendChild(codeItem);
+            });
+        }
+        
+        function showAccessMessage(text, type) {
+            const messageDiv = document.getElementById('accessMessage');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Optional: Show copied notification
+                const codeValue = document.getElementById('codeValue');
+                const originalText = codeValue.textContent;
+                codeValue.textContent = 'Copied to clipboard!';
+                codeValue.style.color = '#2E7D32';
+                
+                setTimeout(() => {
+                    codeValue.textContent = originalText;
+                    codeValue.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
+        function clearAllCodes() {
+            if (confirm('Are you sure you want to clear all generated codes? This action cannot be undone.')) {
+                generatedCodes = [];
+                localStorage.removeItem(CODES_STORAGE_KEY);
+                localStorage.removeItem(ACTIVE_CODE_KEY);
+                displayRecentCodes();
+                showAccessMessage('All codes cleared successfully.', 'success');
+            }
+        }
+        
+        function resetSystem() {
+            if (confirm('This will reset the entire system. All codes and temporary data will be cleared. Continue?')) {
+                localStorage.clear();
+                generatedCodes = [];
+                displayRecentCodes();
+                document.getElementById('generatedCode').style.display = 'none';
+                document.getElementById('accessCode').value = '';
+                showAccessMessage('System reset successfully.', 'success');
+            }
+        }
+        
+        // Auto-validate code on Enter key press
+        document.getElementById('accessCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateCode();
+            }
+        });
+    </script>
+</body>
+</html>
