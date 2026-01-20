@@ -226,6 +226,24 @@
             background-color: var(--dark-red);
         }
         
+        .btn-refresh {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-refresh:hover {
+            background-color: #1976D2;
+        }
+        
         .chart-container {
             height: 300px;
             margin-top: 1rem;
@@ -321,6 +339,47 @@
             margin-top: 0.5rem;
         }
         
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--deep-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .data-status {
+            padding: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+        
+        .status-error {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+        
+        .status-loading {
+            background-color: #E3F2FD;
+            color: #1565C0;
+            border: 1px solid #BBDEFB;
+        }
+        
         @media (max-width: 768px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
@@ -359,10 +418,19 @@
                 <h1>TSL Admin Dashboard</h1>
                 <div id="adminWelcome" class="admin-info"></div>
             </div>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="btn-refresh" onclick="refreshAllData()">
+                    <span id="refreshIcon">🔄</span> Refresh
+                </button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
         </div>
         
         <div class="container">
+            <div id="dataStatus" class="data-status status-loading" style="display: none;">
+                <span id="statusMessage">Loading data from SheetDB...</span>
+            </div>
+            
             <div class="filters">
                 <div class="filter-row">
                     <div class="filter-group">
@@ -388,9 +456,7 @@
                         <label>Driver</label>
                         <select id="filterDriver">
                             <option value="">All Drivers</option>
-                            <option value="11084">ADEREMI ADEGBOYE EZEKIEL</option>
-                            <option value="11411">EBUBE EMMANUEL SAMSON</option>
-                            <option value="11416">ALIDU MUHAMMED</option>
+                            <!-- Options will be loaded dynamically -->
                         </select>
                     </div>
                 </div>
@@ -409,9 +475,7 @@
                         <label>Product</label>
                         <select id="filterProduct">
                             <option value="">All Products</option>
-                            <option value="Heineken Bottle 60cl">Heineken Bottle 60cl</option>
-                            <option value="Star Can 33cl">Star Can 33cl</option>
-                            <option value="Guinness Can 500ml">Guinness Can 500ml</option>
+                            <!-- Options will be loaded dynamically -->
                         </select>
                     </div>
                     
@@ -425,43 +489,56 @@
                     </div>
                 </div>
                 
-                <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
-                <button class="btn-apply" onclick="exportData()" style="background-color: #2E7D32; margin-left: 1rem;">Export Data</button>
-                <button class="btn-apply" onclick="generateReport()" style="background-color: #1565C0; margin-left: 1rem;">Generate Report</button>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+                    <button class="btn-apply" onclick="clearFilters()" style="background-color: #757575;">Clear Filters</button>
+                    <button class="btn-apply" onclick="exportData()" style="background-color: #2E7D32;">📥 Export Data</button>
+                    <button class="btn-apply" onclick="generateReport()" style="background-color: #1565C0;">📄 Generate Report</button>
+                </div>
             </div>
             
             <div class="dashboard-grid">
                 <div class="card">
                     <h3>💰 Total Shortage Value</h3>
-                    <div class="stat-number">₦ 2,457,800</div>
+                    <div class="stat-number" id="totalShortageValue">₦ 0</div>
                     <div class="stat-label">This Month</div>
-                    <span class="stat-change positive">↓ 8% from last month</span>
+                    <span class="stat-change positive" id="shortageTrend">--</span>
                 </div>
                 
                 <div class="card">
                     <h3>🚚 Total Shipments</h3>
-                    <div class="stat-number">423</div>
+                    <div class="stat-number" id="totalShipments">0</div>
                     <div class="stat-label">Shipments Tracked</div>
-                    <span class="stat-change positive">↑ 12% from last month</span>
+                    <span class="stat-change positive" id="shipmentTrend">--</span>
                 </div>
                 
                 <div class="card">
                     <h3>📦 Average Shortage</h3>
-                    <div class="stat-number">2.8%</div>
+                    <div class="stat-number" id="avgShortage">0%</div>
                     <div class="stat-label">Per Shipment</div>
-                    <span class="stat-change negative">↑ 0.2% from last month</span>
+                    <span class="stat-change negative" id="shortagePercentTrend">--</span>
                 </div>
                 
                 <div class="card">
                     <h3>💵 Recovery Rate</h3>
-                    <div class="stat-number">82%</div>
+                    <div class="stat-number" id="recoveryRate">0%</div>
                     <div class="stat-label">Cash & Debit Memo</div>
-                    <span class="stat-change positive">↑ 4% from last month</span>
+                    <span class="stat-change positive" id="recoveryTrend">--</span>
                 </div>
             </div>
             
             <div class="table-container">
-                <h3>📊 Recent Shortage Records</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="margin: 0;">📊 Shortage Records</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span id="recordCount" style="color: #666; font-size: 0.9rem;">Loading records...</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="loadTableData()" class="btn-refresh" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                <span id="tableRefreshIcon">↻</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <table id="shortageTable">
                     <thead>
                         <tr>
@@ -477,12 +554,14 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- Data will be populated here -->
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 2rem; color: #666;">
+                                Loading data from SheetDB...
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
-                <div class="pagination" id="pagination">
-                    <!-- Pagination will be generated here -->
-                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
             
             <div class="dashboard-grid">
@@ -510,7 +589,7 @@
                 </div>
                 
                 <div class="card">
-                    <h3>👤 Driver Performance</h3>
+                    <h3>👤 Top 10 Drivers</h3>
                     <div class="chart-container">
                         <canvas id="driverChart"></canvas>
                     </div>
@@ -519,12 +598,22 @@
             
             <div class="footer">
                 <p>© 2023 Transport Services Limited (TSL) - Confidential Admin Dashboard</p>
-                <p>Last updated: <span id="lastUpdated">Loading...</span></p>
+                <p>Last updated: <span id="lastUpdated">--:--:--</span> | Data source: <span id="dataSourceStatus">Not connected</span></p>
             </div>
         </div>
     </div>
 
     <script>
+        // ============================
+        // SHEETDB CONFIGURATION
+        // ============================
+        // ⚠️ REPLACE THIS WITH YOUR ACTUAL SHEETDB API URL ⚠️
+        const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/ky6mzl5sav83s';
+        
+        // ============================
+        // AUTHENTICATION
+        // ============================
+        
         // Check admin code on page load
         document.addEventListener('DOMContentLoaded', function() {
             checkStoredCode();
@@ -539,10 +628,8 @@
                 const expiryTime = new Date(codeData.expires);
                 
                 if (now < expiryTime) {
-                    // Code is still valid
                     showDashboard(codeData);
                 } else {
-                    // Code has expired
                     localStorage.removeItem('tsl_active_code');
                     showLoginScreen();
                 }
@@ -609,9 +696,9 @@
             // Update welcome message
             const welcomeDiv = document.getElementById('adminWelcome');
             const expiryTime = new Date(codeData.expires);
-            welcomeDiv.textContent = `Welcome, ${codeData.adminName} | Code expires: ${expiryTime.toLocaleTimeString()}`;
+            welcomeDiv.textContent = `Welcome, ${codeData.adminName} | Session expires: ${expiryTime.toLocaleTimeString()}`;
             
-            // Initialize dashboard
+            // Initialize dashboard with real data
             initializeDashboard();
         }
         
@@ -622,14 +709,22 @@
             document.getElementById('loginError').style.display = 'none';
         }
         
-        // Logout function
         function logout() {
             localStorage.removeItem('tsl_active_code');
             showLoginScreen();
         }
         
-        // Initialize dashboard
-        function initializeDashboard() {
+        // ============================
+        // DATA FETCHING FUNCTIONS
+        // ============================
+        
+        let allData = [];
+        let currentPage = 1;
+        const pageSize = 20;
+        
+        async function initializeDashboard() {
+            showStatus('Loading dashboard data...', 'loading');
+            
             // Set date filters to current month
             const today = new Date();
             const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -638,121 +733,617 @@
             document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
             document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
             
-            // Update last updated time
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-            
-            // Load table data
-            loadTableData();
-            
-            // Initialize charts
-            initializeCharts();
+            try {
+                // Load all data
+                await fetchAllData();
+                
+                // Populate filter dropdowns
+                populateFilterDropdowns();
+                
+                // Update stats and charts
+                await updateDashboardStats();
+                await initializeCharts();
+                
+                // Load table data
+                await loadTableData();
+                
+                // Update UI
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                document.getElementById('dataSourceStatus').textContent = 'Connected to SheetDB';
+                document.getElementById('dataSourceStatus').style.color = '#2E7D32';
+                
+                showStatus('Dashboard loaded successfully!', 'success');
+                setTimeout(() => {
+                    document.getElementById('dataStatus').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showStatus(`Error loading data: ${error.message}`, 'error');
+                document.getElementById('dataSourceStatus').textContent = 'Connection failed';
+                document.getElementById('dataSourceStatus').style.color = '#C62828';
+            }
         }
         
-        // Load table data
-        function loadTableData() {
-            // Mock data for demonstration
-            const mockData = [
-                {
-                    date_captured: '2023-10-15',
-                    truck_no: 'APP980XZ',
-                    delivery_officer: 'ADEREMI ADEGBOYE EZEKIEL',
-                    product_loaded: 'Heineken Bottle 60cl',
-                    qty_loaded: 1000,
-                    total_shortage: 48,
-                    actual_value: 593760,
-                    white_slip: 'Yes'
-                },
-                {
-                    date_captured: '2023-10-14',
-                    truck_no: 'FKJ20YA',
-                    delivery_officer: 'EBUBE EMMANUEL SAMSON',
-                    product_loaded: 'Star Can 33cl',
-                    qty_loaded: 800,
-                    total_shortage: 32,
-                    actual_value: 367840,
-                    white_slip: 'No'
-                },
-                {
-                    date_captured: '2023-10-13',
-                    truck_no: 'BDG24XZ',
-                    delivery_officer: 'ALIDU MUHAMMED',
-                    product_loaded: '33 Export Bottle 60cl',
-                    qty_loaded: 600,
-                    total_shortage: 18,
-                    actual_value: 161820,
-                    white_slip: 'Yes'
-                },
-                {
-                    date_captured: '2023-10-12',
-                    truck_no: 'APP843XW',
-                    delivery_officer: 'TAIWO ORIYOMI ADEBAYO',
-                    product_loaded: 'Gulder Bottle 60cl',
-                    qty_loaded: 1200,
-                    total_shortage: 72,
-                    actual_value: 777600,
-                    white_slip: 'No'
-                },
-                {
-                    date_captured: '2023-10-11',
-                    truck_no: 'KSF956XZ',
-                    delivery_officer: 'JULIUS OYETUNJI ADEREMI',
-                    product_loaded: 'Legend Bottle 60cl',
-                    qty_loaded: 900,
-                    total_shortage: 27,
-                    actual_value: 294705,
-                    white_slip: 'Yes'
+        async function fetchAllData() {
+            try {
+                showStatus('Fetching data from SheetDB...', 'loading');
+                
+                const response = await fetch(`${SHEETDB_API_URL}/shortage_data`);
+                
+                if (!response.ok) {
+                    throw new Error(`SheetDB API error: ${response.status}`);
                 }
-            ];
-            
+                
+                const data = await response.json();
+                
+                if (!data || !Array.isArray(data)) {
+                    throw new Error('Invalid data format received from SheetDB');
+                }
+                
+                allData = data;
+                
+                // Store for offline reference
+                localStorage.setItem('tsl_last_data_fetch', JSON.stringify({
+                    data: data,
+                    timestamp: new Date().toISOString()
+                }));
+                
+                return data;
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                
+                // Try to use cached data
+                const cachedData = localStorage.getItem('tsl_last_data_fetch');
+                if (cachedData) {
+                    const parsed = JSON.parse(cachedData);
+                    allData = parsed.data;
+                    showStatus('Using cached data (offline mode)', 'warning');
+                    return parsed.data;
+                }
+                
+                throw error;
+            }
+        }
+        
+        async function loadTableData() {
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
+            const tableRefreshIcon = document.getElementById('tableRefreshIcon');
             
-            mockData.forEach((record, index) => {
-                const row = document.createElement('tr');
-                
-                // Calculate percentage
-                const shortagePercent = ((record.total_shortage / record.qty_loaded) * 100).toFixed(1);
-                
-                row.innerHTML = `
-                    <td>${record.date_captured}</td>
-                    <td>${record.truck_no}</td>
-                    <td>${record.delivery_officer}</td>
-                    <td>${record.product_loaded}</td>
-                    <td>${record.qty_loaded.toLocaleString()}</td>
-                    <td>${record.total_shortage} (${shortagePercent}%)</td>
-                    <td>₦ ${record.actual_value.toLocaleString()}</td>
-                    <td><span style="color: ${record.white_slip === 'Yes' ? '#2E7D32' : '#C62828'}; 
-                        font-weight: bold;">${record.white_slip}</span></td>
-                    <td>
-                        <button class="btn-action btn-view" onclick="viewRecord(${index})">View</button>
-                        <button class="btn-action btn-edit" onclick="editRecord(${index})">Edit</button>
-                        <button class="btn-action btn-delete" onclick="deleteRecord(${index})">Delete</button>
+            // Show loading state
+            tableRefreshIcon.textContent = '⏳';
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 2rem; color: #666;">
+                        <div class="loading" style="margin: 0 auto;"></div>
+                        <div style="margin-top: 1rem;">Loading data from SheetDB...</div>
                     </td>
-                `;
+                </tr>
+            `;
+            
+            try {
+                // If we don't have data yet, fetch it
+                if (allData.length === 0) {
+                    await fetchAllData();
+                }
                 
-                tableBody.appendChild(row);
+                // Apply filters if any
+                let filteredData = applyCurrentFilters(allData);
+                
+                // Update record count
+                document.getElementById('recordCount').textContent = `${filteredData.length} records found`;
+                
+                // Handle no data
+                if (filteredData.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 2rem; color: #666;">
+                                No shortage records found matching your filters.
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="index.html" style="color: var(--deep-red); text-decoration: none;">
+                                        Start entering data in the form →
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    updatePagination(1, pageSize, 0);
+                    tableRefreshIcon.textContent = '↻';
+                    return;
+                }
+                
+                // Sort by date (newest first)
+                filteredData.sort((a, b) => {
+                    const dateA = new Date(a.date_captured || a.loading_date || 0);
+                    const dateB = new Date(b.date_captured || b.loading_date || 0);
+                    return dateB - dateA;
+                });
+                
+                // Calculate pagination
+                const totalPages = Math.ceil(filteredData.length / pageSize);
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const pageData = filteredData.slice(startIndex, endIndex);
+                
+                // Clear table
+                tableBody.innerHTML = '';
+                
+                // Populate table
+                pageData.forEach((record, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Calculate values
+                    const qtyLoaded = parseFloat(record.qty_loaded) || 0;
+                    const totalShortage = parseFloat(record.total_shortage) || 0;
+                    const shortagePercent = qtyLoaded > 0 ? 
+                        ((totalShortage / qtyLoaded) * 100).toFixed(1) : '0.0';
+                    
+                    const actualValue = parseFloat(record.actual_value) || 0;
+                    const cashRecovery = parseFloat(record.cash_recovery) || 0;
+                    const debitMemo = parseFloat(record.debit_memo) || 0;
+                    const totalRecovery = cashRecovery + debitMemo;
+                    const recoveryPercent = actualValue > 0 ? 
+                        ((totalRecovery / actualValue) * 100).toFixed(0) : '0';
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(record.date_captured)}</td>
+                        <td><strong>${record.truck_no || 'N/A'}</strong><br>
+                            <small style="color: #666;">${record.t_no || ''}</small></td>
+                        <td>${record.delivery_officer || 'N/A'}<br>
+                            <small style="color: #666;">ID: ${record.staff_id || ''}</small></td>
+                        <td>${record.product_loaded || 'N/A'}</td>
+                        <td>${qtyLoaded.toLocaleString()}</td>
+                        <td>
+                            <strong>${totalShortage}</strong> <small>(${shortagePercent}%)</small><br>
+                            <small style="color: #666;">Recovered: ${recoveryPercent}%</small>
+                        </td>
+                        <td><strong>₦ ${actualValue.toLocaleString()}</strong><br>
+                            <small style="color: #666;">Rec: ₦ ${totalRecovery.toLocaleString()}</small></td>
+                        <td>
+                            <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 3px; 
+                                background-color: ${record.white_slip === 'Yes' ? '#E8F5E9' : '#FFEBEE'}; 
+                                color: ${record.white_slip === 'Yes' ? '#2E7D32' : '#C62828'}; 
+                                font-weight: bold; font-size: 0.85rem;">
+                                ${record.white_slip || 'No'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                <button class="btn-action btn-view" onclick="viewFullRecord('${record.id || index}')" 
+                                    style="width: 100%;">View Details</button>
+                                <button class="btn-action btn-edit" onclick="editRecord('${record.id || index}')" 
+                                    style="width: 100%;">Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteRecord('${record.id || index}')" 
+                                    style="width: 100%;">Delete</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+                
+                // Update pagination
+                updatePagination(currentPage, pageSize, filteredData.length);
+                
+                tableRefreshIcon.textContent = '↻';
+                
+            } catch (error) {
+                console.error('Error loading table data:', error);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: #f44336;">
+                            <div>⚠️ Error loading data from SheetDB</div>
+                            <div style="font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</div>
+                            <button onclick="fetchAllData()" style="margin-top: 1rem; padding: 0.5rem 1rem; 
+                                background: var(--deep-red); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                Retry Connection
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableRefreshIcon.textContent = '↻';
+            }
+        }
+        
+        async function updateDashboardStats() {
+            try {
+                if (allData.length === 0) {
+                    // Set default values
+                    document.getElementById('totalShortageValue').textContent = '₦ 0';
+                    document.getElementById('totalShipments').textContent = '0';
+                    document.getElementById('avgShortage').textContent = '0%';
+                    document.getElementById('recoveryRate').textContent = '0%';
+                    return;
+                }
+                
+                // Get current month data
+                const today = new Date();
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                
+                const currentMonthData = allData.filter(record => {
+                    const recordDate = new Date(record.date_captured || record.loading_date);
+                    return recordDate.getMonth() === currentMonth && 
+                           recordDate.getFullYear() === currentYear;
+                });
+                
+                const previousMonthData = allData.filter(record => {
+                    const recordDate = new Date(record.date_captured || record.loading_date);
+                    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                    const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                    return recordDate.getMonth() === prevMonth && 
+                           recordDate.getFullYear() === prevYear;
+                });
+                
+                // Calculate current month stats
+                let totalShortageValue = 0;
+                let totalRecovery = 0;
+                let totalRecoverable = 0;
+                let totalQtyLoaded = 0;
+                let totalShortageQty = 0;
+                
+                currentMonthData.forEach(record => {
+                    totalShortageValue += parseFloat(record.actual_value) || 0;
+                    totalRecovery += (parseFloat(record.cash_recovery) || 0) + 
+                                    (parseFloat(record.debit_memo) || 0);
+                    totalRecoverable += parseFloat(record.actual_value) || 0;
+                    totalQtyLoaded += parseFloat(record.qty_loaded) || 0;
+                    totalShortageQty += parseFloat(record.total_shortage) || 0;
+                });
+                
+                // Calculate previous month stats for comparison
+                let prevShortageValue = 0;
+                let prevShipments = previousMonthData.length;
+                let prevShortageQty = 0;
+                let prevQtyLoaded = 0;
+                let prevRecovery = 0;
+                let prevRecoverable = 0;
+                
+                previousMonthData.forEach(record => {
+                    prevShortageValue += parseFloat(record.actual_value) || 0;
+                    prevShortageQty += parseFloat(record.total_shortage) || 0;
+                    prevQtyLoaded += parseFloat(record.qty_loaded) || 0;
+                    prevRecovery += (parseFloat(record.cash_recovery) || 0) + 
+                                   (parseFloat(record.debit_memo) || 0);
+                    prevRecoverable += parseFloat(record.actual_value) || 0;
+                });
+                
+                // Calculate percentages and trends
+                const avgShortagePercent = totalQtyLoaded > 0 ? 
+                    ((totalShortageQty / totalQtyLoaded) * 100).toFixed(1) : 0;
+                
+                const recoveryRate = totalRecoverable > 0 ? 
+                    ((totalRecovery / totalRecoverable) * 100).toFixed(0) : 0;
+                
+                const prevAvgShortage = prevQtyLoaded > 0 ? 
+                    ((prevShortageQty / prevQtyLoaded) * 100).toFixed(1) : 0;
+                
+                const prevRecoveryRate = prevRecoverable > 0 ? 
+                    ((prevRecovery / prevRecoverable) * 100).toFixed(0) : 0;
+                
+                // Update dashboard cards
+                document.getElementById('totalShortageValue').textContent = 
+                    `₦ ${totalShortageValue.toLocaleString()}`;
+                document.getElementById('totalShipments').textContent = 
+                    currentMonthData.length.toLocaleString();
+                document.getElementById('avgShortage').textContent = 
+                    `${avgShortagePercent}%`;
+                document.getElementById('recoveryRate').textContent = 
+                    `${recoveryRate}%`;
+                
+                // Update trend indicators
+                updateTrendIndicator('shortageTrend', totalShortageValue, prevShortageValue, 'currency');
+                updateTrendIndicator('shipmentTrend', currentMonthData.length, prevShipments, 'count');
+                updateTrendIndicator('shortagePercentTrend', parseFloat(avgShortagePercent), parseFloat(prevAvgShortage), 'percent');
+                updateTrendIndicator('recoveryTrend', parseFloat(recoveryRate), parseFloat(prevRecoveryRate), 'percent');
+                
+            } catch (error) {
+                console.error('Error updating dashboard stats:', error);
+            }
+        }
+        
+        // ============================
+        // CHART FUNCTIONS
+        // ============================
+        
+        let shortageTrendChart = null;
+        let locationChart = null;
+        let productChart = null;
+        let driverChart = null;
+        
+        async function initializeCharts() {
+            try {
+                if (allData.length === 0) {
+                    createEmptyCharts();
+                    return;
+                }
+                
+                // Process data for charts
+                const monthlyData = processMonthlyData(allData);
+                const locationData = processLocationData(allData);
+                const productData = processProductData(allData);
+                const driverData = processDriverData(allData);
+                
+                // Create charts
+                createShortageTrendChart(monthlyData);
+                createLocationChart(locationData);
+                createProductChart(productData);
+                createDriverChart(driverData);
+                
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+                createEmptyCharts();
+            }
+        }
+        
+        function processMonthlyData(data) {
+            // Group data by month
+            const monthlyMap = {};
+            
+            data.forEach(record => {
+                const date = new Date(record.date_captured || record.loading_date);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyMap[monthKey]) {
+                    monthlyMap[monthKey] = {
+                        totalValue: 0,
+                        count: 0,
+                        shortageQty: 0,
+                        loadedQty: 0
+                    };
+                }
+                
+                monthlyMap[monthKey].totalValue += parseFloat(record.actual_value) || 0;
+                monthlyMap[monthKey].count += 1;
+                monthlyMap[monthKey].shortageQty += parseFloat(record.total_shortage) || 0;
+                monthlyMap[monthKey].loadedQty += parseFloat(record.qty_loaded) || 0;
             });
             
-            // Update pagination
-            updatePagination(1, 5, mockData.length);
+            // Sort by month and get last 12 months
+            const months = Object.keys(monthlyMap).sort();
+            const last12Months = months.slice(-12);
+            
+            return {
+                labels: last12Months.map(month => {
+                    const [year, monthNum] = month.split('-');
+                    return new Date(year, monthNum - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                }),
+                values: last12Months.map(month => monthlyMap[month].totalValue),
+                counts: last12Months.map(month => monthlyMap[month].count),
+                percentages: last12Months.map(month => {
+                    const loaded = monthlyMap[month].loadedQty;
+                    const shortage = monthlyMap[month].shortageQty;
+                    return loaded > 0 ? (shortage / loaded * 100).toFixed(1) : 0;
+                })
+            };
         }
         
-        // Initialize charts
-        function initializeCharts() {
-            // Shortage Trend Chart
-            const trendCtx = document.getElementById('shortageTrendChart').getContext('2d');
-            new Chart(trendCtx, {
+        function processLocationData(data) {
+            const locationMap = {};
+            
+            data.forEach(record => {
+                const location = record.loading_point || 'Unknown';
+                if (!locationMap[location]) {
+                    locationMap[location] = {
+                        totalValue: 0,
+                        count: 0
+                    };
+                }
+                locationMap[location].totalValue += parseFloat(record.actual_value) || 0;
+                locationMap[location].count += 1;
+            });
+            
+            const locations = Object.keys(locationMap);
+            return {
+                labels: locations,
+                values: locations.map(loc => locationMap[loc].totalValue),
+                counts: locations.map(loc => locationMap[loc].count)
+            };
+        }
+        
+        function processProductData(data) {
+            const productMap = {};
+            
+            data.forEach(record => {
+                const product = record.product_loaded || 'Unknown';
+                if (!productMap[product]) {
+                    productMap[product] = {
+                        totalValue: 0,
+                        count: 0,
+                        shortageQty: 0
+                    };
+                }
+                productMap[product].totalValue += parseFloat(record.actual_value) || 0;
+                productMap[product].count += 1;
+                productMap[product].shortageQty += parseFloat(record.total_shortage) || 0;
+            });
+            
+            // Sort by total value and take top 10
+            const products = Object.keys(productMap).sort((a, b) => 
+                productMap[b].totalValue - productMap[a].totalValue
+            ).slice(0, 10);
+            
+            return {
+                labels: products,
+                values: products.map(product => productMap[product].totalValue),
+                counts: products.map(product => productMap[product].count),
+                shortageQty: products.map(product => productMap[product].shortageQty)
+            };
+        }
+        
+        function processDriverData(data) {
+            const driverMap = {};
+            
+            data.forEach(record => {
+                const driver = record.delivery_officer || 'Unknown';
+                const staffId = record.staff_id || '';
+                const key = `${driver} (${staffId})`;
+                
+                if (!driverMap[key]) {
+                    driverMap[key] = {
+                        totalValue: 0,
+                        count: 0,
+                        shortageQty: 0,
+                        loadedQty: 0,
+                        recovery: 0
+                    };
+                }
+                
+                driverMap[key].totalValue += parseFloat(record.actual_value) || 0;
+                driverMap[key].count += 1;
+                driverMap[key].shortageQty += parseFloat(record.total_shortage) || 0;
+                driverMap[key].loadedQty += parseFloat(record.qty_loaded) || 0;
+                driverMap[key].recovery += (parseFloat(record.cash_recovery) || 0) + 
+                                         (parseFloat(record.debit_memo) || 0);
+            });
+            
+            // Calculate performance score (0-100)
+            Object.keys(driverMap).forEach(key => {
+                const driver = driverMap[key];
+                const shortagePercent = driver.loadedQty > 0 ? 
+                    (driver.shortageQty / driver.loadedQty) * 100 : 100;
+                const recoveryRate = driver.totalValue > 0 ? 
+                    (driver.recovery / driver.totalValue) * 100 : 0;
+                
+                // Lower shortage = better, higher recovery = better
+                const performanceScore = Math.max(0, 100 - (shortagePercent * 0.7) + (recoveryRate * 0.3));
+                driver.performanceScore = Math.min(100, performanceScore);
+            });
+            
+            // Sort by performance score and take top 10
+            const drivers = Object.keys(driverMap).sort((a, b) => 
+                driverMap[b].performanceScore - driverMap[a].performanceScore
+            ).slice(0, 10);
+            
+            return {
+                labels: drivers,
+                performanceScores: drivers.map(driver => driverMap[driver].performanceScore.toFixed(0)),
+                shortageValues: drivers.map(driver => driverMap[driver].totalValue)
+            };
+        }
+        
+        function createShortageTrendChart(monthlyData) {
+            const ctx = document.getElementById('shortageTrendChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (shortageTrendChart) {
+                shortageTrendChart.destroy();
+            }
+            
+            shortageTrendChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    labels: monthlyData.labels,
+                    datasets: [
+                        {
+                            label: 'Shortage Value (₦)',
+                            data: monthlyData.values,
+                            borderColor: 'var(--deep-red)',
+                            backgroundColor: 'rgba(139, 0, 0, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Shipments',
+                            data: monthlyData.counts,
+                            borderColor: '#42A5F5',
+                            backgroundColor: 'rgba(66, 165, 245, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.datasetIndex === 0) {
+                                        label += '₦' + context.parsed.y.toLocaleString();
+                                    } else {
+                                        label += context.parsed.y.toLocaleString() + ' shipments';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Shortage Value (₦)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₦' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Shipments'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createLocationChart(locationData) {
+            const ctx = document.getElementById('locationChart').getContext('2d');
+            
+            if (locationChart) {
+                locationChart.destroy();
+            }
+            
+            // Prepare colors
+            const colors = [
+                'var(--deep-red)', '#FF6B6B', '#FFA726', '#42A5F5', '#66BB6A',
+                '#AB47BC', '#26A69A', '#FF7043', '#78909C', '#8D6E63'
+            ];
+            
+            locationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: locationData.labels,
                     datasets: [{
-                        label: 'Shortage Value (₦)',
-                        data: [2200000, 2100000, 2300000, 2250000, 2400000, 2350000, 2500000, 2450000, 2300000, 2457800],
-                        borderColor: 'var(--deep-red)',
-                        backgroundColor: 'rgba(139, 0, 0, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
+                        data: locationData.values,
+                        backgroundColor: colors.slice(0, locationData.labels.length),
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -760,59 +1351,42 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: true
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₦' + (value / 1000000).toFixed(1) + 'M';
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ₦${value.toLocaleString()} (${percentage}%)`;
                                 }
                             }
                         }
                     }
                 }
             });
+        }
+        
+        function createProductChart(productData) {
+            const ctx = document.getElementById('productChart').getContext('2d');
             
-            // Location Chart
-            const locationCtx = document.getElementById('locationChart').getContext('2d');
-            new Chart(locationCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['NBL IGANMU', 'NBL IJEBU', 'NBL ABIA', 'NBL KADUNA', 'NBL ENUGU'],
-                    datasets: [{
-                        data: [35, 25, 15, 12, 13],
-                        backgroundColor: [
-                            'var(--deep-red)',
-                            '#FF6B6B',
-                            '#FFA726',
-                            '#42A5F5',
-                            '#66BB6A'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
+            if (productChart) {
+                productChart.destroy();
+            }
             
-            // Product Chart
-            const productCtx = document.getElementById('productChart').getContext('2d');
-            new Chart(productCtx, {
+            productChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Heineken', 'Star', '33 Export', 'Gulder', 'Legend'],
+                    labels: productData.labels,
                     datasets: [{
                         label: 'Shortage Value (₦)',
-                        data: [593760, 367840, 161820, 777600, 294705],
+                        data: productData.values,
                         backgroundColor: 'var(--deep-red)',
                         borderColor: 'var(--dark-red)',
                         borderWidth: 1
@@ -821,7 +1395,21 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
                     scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
                         y: {
                             beginAtZero: true,
                             ticks: {
@@ -833,31 +1421,66 @@
                     }
                 }
             });
+        }
+        
+        function createDriverChart(driverData) {
+            const ctx = document.getElementById('driverChart').getContext('2d');
             
-            // Driver Chart
-            const driverCtx = document.getElementById('driverChart').getContext('2d');
-            new Chart(driverCtx, {
-                type: 'radar',
+            if (driverChart) {
+                driverChart.destroy();
+            }
+            
+            driverChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: ['ADEREMI E.', 'EBUBE S.', 'ALIDU M.', 'TAIWO A.', 'JULIUS A.'],
+                    labels: driverData.labels.map(label => {
+                        // Truncate long names
+                        if (label.length > 20) {
+                            return label.substring(0, 20) + '...';
+                        }
+                        return label;
+                    }),
                     datasets: [{
                         label: 'Performance Score',
-                        data: [85, 92, 78, 65, 88],
-                        backgroundColor: 'rgba(139, 0, 0, 0.2)',
-                        borderColor: 'var(--deep-red)',
-                        borderWidth: 2,
-                        pointBackgroundColor: 'var(--deep-red)'
+                        data: driverData.performanceScores,
+                        backgroundColor: driverData.performanceScores.map(score => {
+                            // Color based on performance
+                            if (score >= 80) return '#4CAF50';
+                            if (score >= 60) return '#FFA726';
+                            return '#f44336';
+                        }),
+                        borderColor: '#333',
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Performance: ${context.parsed.x}%`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        r: {
+                        x: {
                             beginAtZero: true,
                             max: 100,
-                            ticks: {
-                                stepSize: 20
+                            title: {
+                                display: true,
+                                text: 'Performance Score (%)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
                             }
                         }
                     }
@@ -865,66 +1488,459 @@
             });
         }
         
-        // Apply filters
+        function createEmptyCharts() {
+            const emptyData = {
+                labels: ['No Data'],
+                values: [0],
+                counts: [0]
+            };
+            
+            createShortageTrendChart(emptyData);
+            createLocationChart(emptyData);
+            createProductChart(emptyData);
+            createDriverChart({ labels: ['No Data'], performanceScores: [0] });
+        }
+        
+        // ============================
+        // UTILITY FUNCTIONS
+        // ============================
+        
+        function applyCurrentFilters(data) {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const loadingPoint = document.getElementById('filterLoadingPoint').value;
+            const driver = document.getElementById('filterDriver').value;
+            const contract = document.getElementById('filterContract').value;
+            const product = document.getElementById('filterProduct').value;
+            const whiteSlip = document.getElementById('filterWhiteSlip').value;
+            
+            return data.filter(record => {
+                // Date filter
+                if (startDate || endDate) {
+                    const recordDate = new Date(record.date_captured || record.loading_date);
+                    const filterStart = startDate ? new Date(startDate) : null;
+                    const filterEnd = endDate ? new Date(endDate + 'T23:59:59') : null;
+                    
+                    if (filterStart && recordDate < filterStart) return false;
+                    if (filterEnd && recordDate > filterEnd) return false;
+                }
+                
+                // Loading point filter
+                if (loadingPoint && record.loading_point !== loadingPoint) return false;
+                
+                // Driver filter
+                if (driver && record.delivery_officer !== driver && record.staff_id !== driver) return false;
+                
+                // Contract filter
+                if (contract && record.contract !== contract) return false;
+                
+                // Product filter
+                if (product && record.product_loaded !== product) return false;
+                
+                // White slip filter
+                if (whiteSlip && record.white_slip !== whiteSlip) return false;
+                
+                return true;
+            });
+        }
+        
         function applyFilters() {
-            alert('Filters applied! (Demo mode)');
+            currentPage = 1;
             loadTableData();
         }
         
-        // Export data
-        function exportData() {
-            alert('Data exported to Excel! (Demo mode)');
+        function clearFilters() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('filterLoadingPoint').value = '';
+            document.getElementById('filterDriver').value = '';
+            document.getElementById('filterContract').value = '';
+            document.getElementById('filterProduct').value = '';
+            document.getElementById('filterWhiteSlip').value = '';
+            
+            currentPage = 1;
+            loadTableData();
         }
         
-        // Generate report
-        function generateReport() {
-            alert('PDF report generated! (Demo mode)');
+        function populateFilterDropdowns() {
+            if (allData.length === 0) return;
+            
+            // Get unique values
+            const loadingPoints = [...new Set(allData.map(r => r.loading_point).filter(Boolean))];
+            const drivers = [...new Set(allData.map(r => r.delivery_officer).filter(Boolean))];
+            const products = [...new Set(allData.map(r => r.product_loaded).filter(Boolean))];
+            
+            // Populate loading points
+            const loadingPointSelect = document.getElementById('filterLoadingPoint');
+            loadingPoints.forEach(point => {
+                const option = document.createElement('option');
+                option.value = point;
+                option.textContent = point;
+                loadingPointSelect.appendChild(option);
+            });
+            
+            // Populate drivers
+            const driverSelect = document.getElementById('filterDriver');
+            drivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver;
+                option.textContent = driver;
+                driverSelect.appendChild(option);
+            });
+            
+            // Populate products
+            const productSelect = document.getElementById('filterProduct');
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product;
+                option.textContent = product;
+                productSelect.appendChild(option);
+            });
         }
         
-        // View record
-        function viewRecord(index) {
-            alert(`Viewing record ${index + 1}`);
-        }
-        
-        // Edit record
-        function editRecord(index) {
-            window.location.href = `index.html?edit=record-${index + 1}`;
-        }
-        
-        // Delete record
-        function deleteRecord(index) {
-            if (confirm('Are you sure you want to delete this record?')) {
-                alert(`Record ${index + 1} deleted! (Demo mode)`);
-                loadTableData();
+        function updateTrendIndicator(elementId, current, previous, type) {
+            const element = document.getElementById(elementId);
+            
+            if (!previous || previous === 0) {
+                element.textContent = '--';
+                element.className = 'stat-change';
+                return;
+            }
+            
+            let change;
+            let changePercent;
+            
+            if (type === 'currency' || type === 'count') {
+                change = current - previous;
+                changePercent = ((change / previous) * 100).toFixed(1);
+            } else if (type === 'percent') {
+                change = current - previous;
+                changePercent = change.toFixed(1);
+            }
+            
+            if (change > 0) {
+                element.textContent = `${type === 'percent' ? '+' : ''}${changePercent}%`;
+                element.className = 'stat-change negative';
+            } else if (change < 0) {
+                element.textContent = `${changePercent}%`;
+                element.className = 'stat-change positive';
+            } else {
+                element.textContent = '0%';
+                element.className = 'stat-change';
             }
         }
         
-        // Update pagination
-        function updatePagination(currentPage, pageSize, totalRecords) {
-            const totalPages = Math.ceil(totalRecords / pageSize);
+        function updatePagination(current, pageSize, total) {
             const paginationDiv = document.getElementById('pagination');
+            const totalPages = Math.ceil(total / pageSize);
+            
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
             
             let paginationHTML = '';
             
-            if (currentPage > 1) {
-                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">Previous</button>`;
+            // Previous button
+            if (current > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${current - 1})">← Previous</button>`;
             }
             
-            for (let i = 1; i <= totalPages; i++) {
-                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            // Page numbers
+            const maxPagesToShow = 5;
+            let startPage = Math.max(1, current - Math.floor(maxPagesToShow / 2));
+            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+            
+            if (endPage - startPage + 1 < maxPagesToShow) {
+                startPage = Math.max(1, endPage - maxPagesToShow + 1);
             }
             
-            if (currentPage < totalPages) {
-                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Next</button>`;
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `<button class="page-btn ${i === current ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            // Next button
+            if (current < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${current + 1})">Next →</button>`;
             }
             
             paginationDiv.innerHTML = paginationHTML;
         }
         
-        // Change page
-        function changePage(pageNumber) {
+        function changePage(page) {
+            currentPage = page;
             loadTableData();
-            updatePagination(pageNumber, 5, 25);
+            window.scrollTo({ top: document.querySelector('.table-container').offsetTop - 100, behavior: 'smooth' });
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('dataStatus');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            statusMessage.textContent = message;
+            statusDiv.className = `data-status status-${type}`;
+            statusDiv.style.display = 'block';
+        }
+        
+        async function refreshAllData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.textContent = '⏳';
+            
+            showStatus('Refreshing all data...', 'loading');
+            
+            try {
+                await fetchAllData();
+                await updateDashboardStats();
+                await initializeCharts();
+                await loadTableData();
+                
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                showStatus('Data refreshed successfully!', 'success');
+                
+                setTimeout(() => {
+                    document.getElementById('dataStatus').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showStatus(`Refresh failed: ${error.message}`, 'error');
+            } finally {
+                refreshIcon.textContent = '🔄';
+            }
+        }
+        
+        // ============================
+        // ACTION FUNCTIONS
+        // ============================
+        
+        function viewFullRecord(recordId) {
+            // Find the record
+            const record = allData.find(r => r.id === recordId) || 
+                          allData[parseInt(recordId)] || 
+                          allData[0];
+            
+            if (!record) {
+                alert('Record not found');
+                return;
+            }
+            
+            // Create detailed view
+            const details = `
+                <div style="text-align: left;">
+                    <h3 style="color: var(--deep-red); margin-bottom: 1rem;">Record Details</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                        <div><strong>Date Captured:</strong><br>${formatDate(record.date_captured)}</div>
+                        <div><strong>Loading Date:</strong><br>${formatDate(record.loading_date)}</div>
+                        <div><strong>Truck No:</strong><br>${record.truck_no || 'N/A'} (${record.t_no || 'N/A'})</div>
+                        <div><strong>Driver:</strong><br>${record.delivery_officer || 'N/A'}<br><small>ID: ${record.staff_id || 'N/A'}</small></div>
+                        <div><strong>Loading Point:</strong><br>${record.loading_point || 'N/A'}</div>
+                        <div><strong>Contract:</strong><br>${record.contract || 'N/A'}</div>
+                        <div><strong>LC Incharge:</strong><br>${record.lc || 'N/A'}</div>
+                        <div><strong>Shipment No:</strong><br>${record.shipment_no || 'N/A'}</div>
+                    </div>
+                    
+                    <div style="background: var(--light-red); padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--dark-red);">Product & Quantities</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div><strong>Product:</strong><br>${record.product_loaded || 'N/A'}</div>
+                            <div><strong>SKU Price:</strong><br>₦ ${parseFloat(record.sku_price || 0).toLocaleString()}</div>
+                            <div><strong>Qty Loaded:</strong><br>${parseFloat(record.qty_loaded || 0).toLocaleString()}</div>
+                            <div><strong>Qty Delivered:</strong><br>${parseFloat(record.qty_delivered || 0).toLocaleString()}</div>
+                            <div><strong>Qty Rejected:</strong><br>${parseFloat(record.qty_rejected || 0).toLocaleString()}</div>
+                            <div><strong>Qty Returned:</strong><br>${parseFloat(record.qty_returned || 0).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #E8F5E9; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: #2E7D32;">Shortage Calculations</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div><strong>Shortage Qty-PRE:</strong><br>${parseFloat(record.shortage_qty_pre || 0).toLocaleString()}</div>
+                            <div><strong>Shortage Value-PRE:</strong><br>₦ ${parseFloat(record.shortage_value_pre || 0).toLocaleString()}</div>
+                            <div><strong>After Analysis:</strong><br>${parseFloat(record.after_analysis || 0).toLocaleString()}</div>
+                            <div><strong>Actual Qty:</strong><br>${parseFloat(record.actual_qty || 0).toLocaleString()}</div>
+                            <div><strong>Total Shortage:</strong><br>${parseFloat(record.total_shortage || 0).toLocaleString()}</div>
+                            <div><strong>Actual Value:</strong><br><strong>₦ ${parseFloat(record.actual_value || 0).toLocaleString()}</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #E3F2FD; padding: 1rem; border-radius: 5px;">
+                        <h4 style="margin-bottom: 0.5rem; color: #1565C0;">Recovery Information</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div><strong>Cash Recovery:</strong><br>₦ ${parseFloat(record.cash_recovery || 0).toLocaleString()}</div>
+                            <div><strong>Debit Memo:</strong><br>₦ ${parseFloat(record.debit_memo || 0).toLocaleString()}</div>
+                            <div><strong>Total Recovery:</strong><br>₦ ${(parseFloat(record.cash_recovery || 0) + parseFloat(record.debit_memo || 0)).toLocaleString()}</div>
+                            <div><strong>White Slip:</strong><br><span style="padding: 0.2rem 0.5rem; border-radius: 3px; 
+                                background-color: ${record.white_slip === 'Yes' ? '#C8E6C9' : '#FFCDD2'}; 
+                                color: ${record.white_slip === 'Yes' ? '#2E7D32' : '#C62828'}; 
+                                font-weight: bold;">${record.white_slip || 'No'}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            alert(details.replace(/<[^>]*>/g, '')); // Fallback to text-only alert
+            // For better UI, you could use a modal instead of alert()
+        }
+        
+        function editRecord(recordId) {
+            // Redirect to form with edit parameter
+            window.location.href = `index.html?edit=${recordId}`;
+        }
+        
+        async function deleteRecord(recordId) {
+            if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                // In a real implementation, you would call SheetDB DELETE API
+                // For now, we'll just show a message
+                alert(`Record ${recordId} marked for deletion. In production, this would delete from SheetDB.`);
+                
+                // Refresh data
+                await refreshAllData();
+                
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                alert('Error deleting record. Please try again.');
+            }
+        }
+        
+        function exportData() {
+            if (allData.length === 0) {
+                alert('No data to export.');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['Date', 'Truck No', 'Driver', 'Product', 'Qty Loaded', 'Total Shortage', 'Actual Value', 'White Slip', 'Cash Recovery', 'Debit Memo'];
+            const csvRows = [headers.join(',')];
+            
+            allData.forEach(record => {
+                const row = [
+                    record.date_captured || '',
+                    record.truck_no || '',
+                    record.delivery_officer || '',
+                    record.product_loaded || '',
+                    record.qty_loaded || 0,
+                    record.total_shortage || 0,
+                    record.actual_value || 0,
+                    record.white_slip || 'No',
+                    record.cash_recovery || 0,
+                    record.debit_memo || 0
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tsl_shortage_data_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert(`Exported ${allData.length} records to CSV file.`);
+        }
+        
+        function generateReport() {
+            if (allData.length === 0) {
+                alert('No data to generate report.');
+                return;
+            }
+            
+            // Create a simple HTML report
+            const reportWindow = window.open('', '_blank');
+            const reportContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>TSL Shortage Report - ${new Date().toLocaleDateString()}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 2rem; }
+                        h1 { color: #8B0000; }
+                        .summary { background: #f5f5f5; padding: 1rem; border-radius: 5px; margin-bottom: 2rem; }
+                        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+                        .stat-box { background: white; padding: 1rem; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+                        .stat-value { font-size: 2rem; font-weight: bold; color: #8B0000; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+                        th { background: #8B0000; color: white; padding: 0.5rem; text-align: left; }
+                        td { padding: 0.5rem; border-bottom: 1px solid #ddd; }
+                        tr:hover { background: #f9f9f9; }
+                    </style>
+                </head>
+                <body>
+                    <h1>TSL Shortage Tracking Report</h1>
+                    <div class="summary">
+                        <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+                        <p><strong>Total Records:</strong> ${allData.length}</p>
+                        <p><strong>Date Range:</strong> ${document.getElementById('startDate').value || 'Start'} to ${document.getElementById('endDate').value || 'End'}</p>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value">₦ ${allData.reduce((sum, r) => sum + (parseFloat(r.actual_value) || 0), 0).toLocaleString()}</div>
+                            <div>Total Shortage Value</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${allData.length}</div>
+                            <div>Total Shipments</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${allData.filter(r => r.white_slip === 'Yes').length}</div>
+                            <div>White Slips Issued</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">${allData.reduce((sum, r) => sum + (parseFloat(r.cash_recovery) || 0) + (parseFloat(r.debit_memo) || 0), 0).toLocaleString()}</div>
+                            <div>Total Recovery (₦)</div>
+                        </div>
+                    </div>
+                    
+                    <h2>Recent Shortage Records</h2>
+                    <table>
+                        <tr>
+                            <th>Date</th>
+                            <th>Truck</th>
+                            <th>Driver</th>
+                            <th>Product</th>
+                            <th>Shortage</th>
+                            <th>Value</th>
+                            <th>White Slip</th>
+                        </tr>
+                        ${allData.slice(0, 20).map(record => `
+                            <tr>
+                                <td>${formatDate(record.date_captured)}</td>
+                                <td>${record.truck_no || ''}</td>
+                                <td>${record.delivery_officer || ''}</td>
+                                <td>${record.product_loaded || ''}</td>
+                                <td>${record.total_shortage || 0}</td>
+                                <td>₦ ${parseFloat(record.actual_value || 0).toLocaleString()}</td>
+                                <td>${record.white_slip || 'No'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                    
+                    <p style="margin-top: 2rem; font-size: 0.9rem; color: #666; text-align: center;">
+                        Generated by TSL Shortage Tracking System
+                    </p>
+                </body>
+                </html>
+            `;
+            
+            reportWindow.document.write(reportContent);
+            reportWindow.document.close();
+            
+            alert('Report generated in new window. You can print this page.');
         }
         
         // Auto-submit on enter for admin code
