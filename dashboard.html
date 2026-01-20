@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSL Admin Dashboard</title>
+    <style>
+        :root {
+            --deep-red: #8B0000;
+            --light-red: #FFE5E5;
+            --dark-red: #660000;
+            --gray-bg: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray-bg);
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--dark-red), var(--deep-red));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: var(--deep-red);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark-red);
+            margin: 1rem 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-change {
+            font-size: 0.85rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            margin-left: 0.5rem;
+        }
+        
+        .positive {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .negative {
+            background-color: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th {
+            background-color: var(--light-red);
+            color: var(--dark-red);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid var(--deep-red);
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .btn-action {
+            padding: 0.3rem 0.8rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-right: 0.3rem;
+        }
+        
+        .btn-edit {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-view {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .filters {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .btn-apply {
+            background-color: var(--deep-red);
+            color: white;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .btn-apply:hover {
+            background-color: var(--dark-red);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .page-btn.active {
+            background-color: var(--deep-red);
+            color: white;
+            border-color: var(--deep-red);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 2rem;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            color: var(--deep-red);
+            margin-bottom: 1.5rem;
+        }
+        
+        .code-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: var(--deep-red);
+        }
+        
+        .btn-login {
+            background-color: var(--deep-red);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .btn-login:hover {
+            background-color: var(--dark-red);
+        }
+        
+        .error-message {
+            color: #f44336;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .admin-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Login Screen (Initially shown) -->
+    <div id="loginScreen" class="login-container">
+        <h2>🔐 TSL Admin Dashboard</h2>
+        <p>Enter access code to continue</p>
+        <input type="text" id="adminCode" class="code-input" maxlength="8" placeholder="00000000">
+        <button class="btn-login" onclick="checkAdminCode()">Access Dashboard</button>
+        <div id="loginError" class="error-message">Invalid or expired access code.</div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+            <a href="code-access.html" style="color: var(--deep-red); text-decoration: none;">← Get Access Code</a>
+        </p>
+    </div>
+    
+    <!-- Dashboard Content (Initially hidden) -->
+    <div id="dashboardContent" style="display: none;">
+        <div class="header">
+            <div>
+                <h1>TSL Admin Dashboard</h1>
+                <div id="adminWelcome" class="admin-info"></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+        
+        <div class="container">
+            <div class="filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Date Range</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="date" id="startDate" style="flex: 1;">
+                            <input type="date" id="endDate" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Loading Point</label>
+                        <select id="filterLoadingPoint">
+                            <option value="">All Locations</option>
+                            <option value="NBL IGANMU">NBL IGANMU</option>
+                            <option value="NBL IJEBU">NBL IJEBU</option>
+                            <option value="NBL ABIA">NBL ABIA</option>
+                            <option value="NBL KADUNA">NBL KADUNA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Driver</label>
+                        <select id="filterDriver">
+                            <option value="">All Drivers</option>
+                            <option value="11084">ADEREMI ADEGBOYE EZEKIEL</option>
+                            <option value="11411">EBUBE EMMANUEL SAMSON</option>
+                            <option value="11416">ALIDU MUHAMMED</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Contract</label>
+                        <select id="filterContract">
+                            <option value="">All Contracts</option>
+                            <option value="NBL IGANMU">NBL IGANMU</option>
+                            <option value="NBL IJEBU">NBL IJEBU</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Product</label>
+                        <select id="filterProduct">
+                            <option value="">All Products</option>
+                            <option value="Heineken Bottle 60cl">Heineken Bottle 60cl</option>
+                            <option value="Star Can 33cl">Star Can 33cl</option>
+                            <option value="Guinness Can 500ml">Guinness Can 500ml</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>White Slip</label>
+                        <select id="filterWhiteSlip">
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-apply" onclick="exportData()" style="background-color: #2E7D32; margin-left: 1rem;">Export Data</button>
+                <button class="btn-apply" onclick="generateReport()" style="background-color: #1565C0; margin-left: 1rem;">Generate Report</button>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>💰 Total Shortage Value</h3>
+                    <div class="stat-number">₦ 2,457,800</div>
+                    <div class="stat-label">This Month</div>
+                    <span class="stat-change positive">↓ 8% from last month</span>
+                </div>
+                
+                <div class="card">
+                    <h3>🚚 Total Shipments</h3>
+                    <div class="stat-number">423</div>
+                    <div class="stat-label">Shipments Tracked</div>
+                    <span class="stat-change positive">↑ 12% from last month</span>
+                </div>
+                
+                <div class="card">
+                    <h3>📦 Average Shortage</h3>
+                    <div class="stat-number">2.8%</div>
+                    <div class="stat-label">Per Shipment</div>
+                    <span class="stat-change negative">↑ 0.2% from last month</span>
+                </div>
+                
+                <div class="card">
+                    <h3>💵 Recovery Rate</h3>
+                    <div class="stat-number">82%</div>
+                    <div class="stat-label">Cash & Debit Memo</div>
+                    <span class="stat-change positive">↑ 4% from last month</span>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3>📊 Recent Shortage Records</h3>
+                <table id="shortageTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Truck No</th>
+                            <th>Driver</th>
+                            <th>Product</th>
+                            <th>Qty Loaded</th>
+                            <th>Shortage</th>
+                            <th>Value</th>
+                            <th>White Slip</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be generated here -->
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>📈 Shortage Trend</h3>
+                    <div class="chart-container">
+                        <canvas id="shortageTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>🏭 By Location</h3>
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>🥤 By Product</h3>
+                    <div class="chart-container">
+                        <canvas id="productChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>👤 Driver Performance</h3>
+                    <div class="chart-container">
+                        <canvas id="driverChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>© 2023 Transport Services Limited (TSL) - Confidential Admin Dashboard</p>
+                <p>Last updated: <span id="lastUpdated">Loading...</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check admin code on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkStoredCode();
+        });
+        
+        function checkStoredCode() {
+            const storedCode = localStorage.getItem('tsl_active_code');
+            
+            if (storedCode) {
+                const codeData = JSON.parse(storedCode);
+                const now = new Date();
+                const expiryTime = new Date(codeData.expires);
+                
+                if (now < expiryTime) {
+                    // Code is still valid
+                    showDashboard(codeData);
+                } else {
+                    // Code has expired
+                    localStorage.removeItem('tsl_active_code');
+                    showLoginScreen();
+                }
+            } else {
+                showLoginScreen();
+            }
+        }
+        
+        function checkAdminCode() {
+            const enteredCode = document.getElementById('adminCode').value.trim().toUpperCase();
+            const errorDiv = document.getElementById('loginError');
+            
+            // Get stored codes
+            const storedCodes = JSON.parse(localStorage.getItem('tsl_admin_codes')) || [];
+            const codeObject = storedCodes.find(c => c.code === enteredCode);
+            
+            if (!codeObject) {
+                errorDiv.textContent = 'Invalid access code.';
+                errorDiv.style.display = 'block';
+                document.getElementById('adminCode').style.borderColor = '#f44336';
+                return;
+            }
+            
+            if (codeObject.used) {
+                errorDiv.textContent = 'This code has already been used.';
+                errorDiv.style.display = 'block';
+                document.getElementById('adminCode').style.borderColor = '#f44336';
+                return;
+            }
+            
+            const now = new Date();
+            const expiryTime = new Date(codeObject.expires);
+            
+            if (now > expiryTime) {
+                errorDiv.textContent = 'This code has expired.';
+                errorDiv.style.display = 'block';
+                document.getElementById('adminCode').style.borderColor = '#f44336';
+                return;
+            }
+            
+            // Mark code as used
+            codeObject.used = true;
+            codeObject.usedAt = now.toISOString();
+            const codeIndex = storedCodes.findIndex(c => c.code === enteredCode);
+            storedCodes[codeIndex] = codeObject;
+            localStorage.setItem('tsl_admin_codes', JSON.stringify(storedCodes));
+            
+            // Store active code data
+            const activeCodeData = {
+                code: enteredCode,
+                adminName: codeObject.adminName,
+                expires: codeObject.expires
+            };
+            localStorage.setItem('tsl_active_code', JSON.stringify(activeCodeData));
+            
+            // Show dashboard
+            showDashboard(activeCodeData);
+        }
+        
+        function showDashboard(codeData) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+            // Update welcome message
+            const welcomeDiv = document.getElementById('adminWelcome');
+            const expiryTime = new Date(codeData.expires);
+            welcomeDiv.textContent = `Welcome, ${codeData.adminName} | Code expires: ${expiryTime.toLocaleTimeString()}`;
+            
+            // Initialize dashboard
+            initializeDashboard();
+        }
+        
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('adminCode').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('tsl_active_code');
+            showLoginScreen();
+        }
+        
+        // Initialize dashboard
+        function initializeDashboard() {
+            // Set date filters to current month
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            document.getElementById('startDate').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('endDate').value = lastDay.toISOString().split('T')[0];
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            
+            // Load table data
+            loadTableData();
+            
+            // Initialize charts
+            initializeCharts();
+        }
+        
+        // Load table data
+        function loadTableData() {
+            // Mock data for demonstration
+            const mockData = [
+                {
+                    date_captured: '2023-10-15',
+                    truck_no: 'APP980XZ',
+                    delivery_officer: 'ADEREMI ADEGBOYE EZEKIEL',
+                    product_loaded: 'Heineken Bottle 60cl',
+                    qty_loaded: 1000,
+                    total_shortage: 48,
+                    actual_value: 593760,
+                    white_slip: 'Yes'
+                },
+                {
+                    date_captured: '2023-10-14',
+                    truck_no: 'FKJ20YA',
+                    delivery_officer: 'EBUBE EMMANUEL SAMSON',
+                    product_loaded: 'Star Can 33cl',
+                    qty_loaded: 800,
+                    total_shortage: 32,
+                    actual_value: 367840,
+                    white_slip: 'No'
+                },
+                {
+                    date_captured: '2023-10-13',
+                    truck_no: 'BDG24XZ',
+                    delivery_officer: 'ALIDU MUHAMMED',
+                    product_loaded: '33 Export Bottle 60cl',
+                    qty_loaded: 600,
+                    total_shortage: 18,
+                    actual_value: 161820,
+                    white_slip: 'Yes'
+                },
+                {
+                    date_captured: '2023-10-12',
+                    truck_no: 'APP843XW',
+                    delivery_officer: 'TAIWO ORIYOMI ADEBAYO',
+                    product_loaded: 'Gulder Bottle 60cl',
+                    qty_loaded: 1200,
+                    total_shortage: 72,
+                    actual_value: 777600,
+                    white_slip: 'No'
+                },
+                {
+                    date_captured: '2023-10-11',
+                    truck_no: 'KSF956XZ',
+                    delivery_officer: 'JULIUS OYETUNJI ADEREMI',
+                    product_loaded: 'Legend Bottle 60cl',
+                    qty_loaded: 900,
+                    total_shortage: 27,
+                    actual_value: 294705,
+                    white_slip: 'Yes'
+                }
+            ];
+            
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            mockData.forEach((record, index) => {
+                const row = document.createElement('tr');
+                
+                // Calculate percentage
+                const shortagePercent = ((record.total_shortage / record.qty_loaded) * 100).toFixed(1);
+                
+                row.innerHTML = `
+                    <td>${record.date_captured}</td>
+                    <td>${record.truck_no}</td>
+                    <td>${record.delivery_officer}</td>
+                    <td>${record.product_loaded}</td>
+                    <td>${record.qty_loaded.toLocaleString()}</td>
+                    <td>${record.total_shortage} (${shortagePercent}%)</td>
+                    <td>₦ ${record.actual_value.toLocaleString()}</td>
+                    <td><span style="color: ${record.white_slip === 'Yes' ? '#2E7D32' : '#C62828'}; 
+                        font-weight: bold;">${record.white_slip}</span></td>
+                    <td>
+                        <button class="btn-action btn-view" onclick="viewRecord(${index})">View</button>
+                        <button class="btn-action btn-edit" onclick="editRecord(${index})">Edit</button>
+                        <button class="btn-action btn-delete" onclick="deleteRecord(${index})">Delete</button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination
+            updatePagination(1, 5, mockData.length);
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Shortage Trend Chart
+            const trendCtx = document.getElementById('shortageTrendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    datasets: [{
+                        label: 'Shortage Value (₦)',
+                        data: [2200000, 2100000, 2300000, 2250000, 2400000, 2350000, 2500000, 2450000, 2300000, 2457800],
+                        borderColor: 'var(--deep-red)',
+                        backgroundColor: 'rgba(139, 0, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₦' + (value / 1000000).toFixed(1) + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Location Chart
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+            new Chart(locationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['NBL IGANMU', 'NBL IJEBU', 'NBL ABIA', 'NBL KADUNA', 'NBL ENUGU'],
+                    datasets: [{
+                        data: [35, 25, 15, 12, 13],
+                        backgroundColor: [
+                            'var(--deep-red)',
+                            '#FF6B6B',
+                            '#FFA726',
+                            '#42A5F5',
+                            '#66BB6A'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Product Chart
+            const productCtx = document.getElementById('productChart').getContext('2d');
+            new Chart(productCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Heineken', 'Star', '33 Export', 'Gulder', 'Legend'],
+                    datasets: [{
+                        label: 'Shortage Value (₦)',
+                        data: [593760, 367840, 161820, 777600, 294705],
+                        backgroundColor: 'var(--deep-red)',
+                        borderColor: 'var(--dark-red)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₦' + (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Driver Chart
+            const driverCtx = document.getElementById('driverChart').getContext('2d');
+            new Chart(driverCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['ADEREMI E.', 'EBUBE S.', 'ALIDU M.', 'TAIWO A.', 'JULIUS A.'],
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: [85, 92, 78, 65, 88],
+                        backgroundColor: 'rgba(139, 0, 0, 0.2)',
+                        borderColor: 'var(--deep-red)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'var(--deep-red)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            alert('Filters applied! (Demo mode)');
+            loadTableData();
+        }
+        
+        // Export data
+        function exportData() {
+            alert('Data exported to Excel! (Demo mode)');
+        }
+        
+        // Generate report
+        function generateReport() {
+            alert('PDF report generated! (Demo mode)');
+        }
+        
+        // View record
+        function viewRecord(index) {
+            alert(`Viewing record ${index + 1}`);
+        }
+        
+        // Edit record
+        function editRecord(index) {
+            window.location.href = `index.html?edit=record-${index + 1}`;
+        }
+        
+        // Delete record
+        function deleteRecord(index) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                alert(`Record ${index + 1} deleted! (Demo mode)`);
+                loadTableData();
+            }
+        }
+        
+        // Update pagination
+        function updatePagination(currentPage, pageSize, totalRecords) {
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            const paginationDiv = document.getElementById('pagination');
+            
+            let paginationHTML = '';
+            
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">Previous</button>`;
+            }
+            
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Next</button>`;
+            }
+            
+            paginationDiv.innerHTML = paginationHTML;
+        }
+        
+        // Change page
+        function changePage(pageNumber) {
+            loadTableData();
+            updatePagination(pageNumber, 5, 25);
+        }
+        
+        // Auto-submit on enter for admin code
+        document.getElementById('adminCode').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                checkAdminCode();
+            }
+        });
+    </script>
+</body>
+</html>
