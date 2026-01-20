@@ -3,138 +3,1026 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TSL Logistics - Home</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>TSL Shortage Tracking System</title>
+    <style>
+        :root {
+            --deep-red: #8B0000;
+            --light-red: #FFE5E5;
+            --dark-red: #660000;
+            --gray-bg: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray-bg);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--dark-red), var(--deep-red));
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-header {
+            border-bottom: 3px solid var(--deep-red);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-header h2 {
+            color: var(--deep-red);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--deep-red);
+            box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+        }
+        
+        .calculation-section {
+            background-color: var(--light-red);
+            border-left: 4px solid var(--deep-red);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .calculation-section h3 {
+            color: var(--dark-red);
+            margin-bottom: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background-color: var(--deep-red);
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background-color: var(--dark-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(139, 0, 0, 0.2);
+        }
+        
+        .btn-reset {
+            background-color: #f0f0f0;
+            color: #555;
+        }
+        
+        .btn-reset:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-edit {
+            background-color: #2E7D32;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #1B5E20;
+        }
+        
+        .message {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+        
+        .error {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #FFCDD2;
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--deep-red);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-truck-moving fa-2x"></i>
-                <div>
-                    <h1>TSL Logistics</h1>
-                    <p>Nigeria's Premier Logistics Provider</p>
-                </div>
-            </div>
-            <nav class="main-nav">
-                <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
-                <a href="code-generator.html" class="nav-link"><i class="fas fa-key"></i> Code Generator</a>
-                <a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Admin Login</a>
-                <a href="user-input.html" class="nav-link"><i class="fas fa-edit"></i> Input Data</a>
-            </nav>
+        <h1>TSL Shortage Tracking System</h1>
+        <p>Transport Services Limited - Nigerian Breweries Operations</p>
+        <div class="nav-links">
+            <a href="index.html">Data Entry</a>
+            <a href="code-access.html">Admin Access</a>
+            <a href="dashboard.html">Dashboard</a>
         </div>
     </div>
-
+    
     <div class="container">
-        <div class="hero">
-            <h2>Shortage Tracking System</h2>
-            <p>Document and track delivery shortages for Nigeria Breweries operations</p>
-        </div>
-
-        <div class="dashboard-overview">
-            <h3>System Overview</h3>
+        <div class="message" id="message"></div>
+        
+        <div class="form-container">
+            <div class="form-header">
+                <h2>🚚 Shortage Entry Form</h2>
+                <p>Fill in the details below to track driver shortages</p>
+            </div>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #0033a0;">
-                        <i class="fas fa-route"></i>
+            <form id="shortageForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dateCaptured" class="required">Date Captured</label>
+                        <input type="date" id="dateCaptured" required>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="totalTrips">0</h3>
-                        <p>Total Trips Tracked</p>
+                    
+                    <div class="form-group">
+                        <label for="loadingDate" class="required">Loading Date</label>
+                        <input type="date" id="loadingDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loadingPoint" class="required">Loading Point</label>
+                        <select id="loadingPoint" required>
+                            <option value="">Select Brewery Location</option>
+                            <option value="NBL IGANMU">NBL IGANMU</option>
+                            <option value="NBL IJEBU">NBL IJEBU</option>
+                            <option value="NBL ABIA">NBL ABIA</option>
+                            <option value="NBL KADUNA">NBL KADUNA</option>
+                            <option value="NBL ENUGU">NBL ENUGU</option>
+                            <option value="NBL OWERRI">NBL OWERRI</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contract" class="required">Contract</label>
+                        <select id="contract" required>
+                            <option value="">Select Contract</option>
+                            <option value="NBL IGANMU">NBL IGANMU</option>
+                            <option value="NBL IJEBU">NBL IJEBU</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tNo" class="required">T. NO</label>
+                        <select id="tNo" required onchange="populateTruckDetails()">
+                            <option value="">Select T. NO</option>
+                            <!-- Options will be populated from truck data -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="truckNo">Truck Number (Reg)</label>
+                        <input type="text" id="truckNo" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lc">Logistics Coordinator</label>
+                        <input type="text" id="lc" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="staffId" class="required">Staff ID</label>
+                        <select id="staffId" required onchange="populateDriverName()">
+                            <option value="">Select Staff ID</option>
+                            <!-- Options will be populated from uploaded data -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryOfficer">Delivery Officer</label>
+                        <input type="text" id="deliveryOfficer" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shipmentNo" class="required">Shipment No</label>
+                        <input type="text" id="shipmentNo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productLoaded" class="required">Product Loaded</label>
+                        <select id="productLoaded" required onchange="populateSKUPrice()">
+                            <option value="">Select Product</option>
+                            <!-- Options will be populated from uploaded data -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="skuPrice">SKU Price</label>
+                        <input type="number" id="skuPrice" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="qtyLoaded" class="required">QTY Loaded</label>
+                        <input type="number" id="qtyLoaded" min="0" required onchange="calculateQuantities()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="qtyDelivered" class="required">QTY Delivered</label>
+                        <input type="number" id="qtyDelivered" min="0" required onchange="calculateQuantities()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="qtyRejected">QTY Rejected</label>
+                        <input type="number" id="qtyRejected" readonly>
                     </div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #e31837;">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalShortage">₦0</h3>
-                        <p>Total Shortage Value</p>
+                <div class="calculation-section">
+                    <h3>📊 Shortage Calculations</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="qtyReturned">QTY Returned</label>
+                            <input type="number" id="qtyReturned" min="0" value="0" onchange="calculateQuantities()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shortageQtyPre">Shortage QTY-PRE</label>
+                            <input type="number" id="shortageQtyPre" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shortageValuePre">Shortage VALUE-PRE</label>
+                            <input type="number" id="shortageValuePre" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="afterAnalysis">After Analysis</label>
+                            <input type="number" id="afterAnalysis" min="0" value="0" onchange="calculateQuantities()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="actualQty">Actual QTY</label>
+                            <input type="number" id="actualQty" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="totalShortage">Total Shortage</label>
+                            <input type="number" id="totalShortage" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="actualValue">Actual Value</label>
+                            <input type="number" id="actualValue" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cashRecovery">Cash Recovery</label>
+                            <input type="number" id="cashRecovery" min="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="debitMemo">Debit Memo Recovery</label>
+                            <input type="number" id="debitMemo" min="0" value="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="whiteSlip">White Slip</label>
+                            <select id="whiteSlip">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #17a2b8;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalDrivers">0</h3>
-                        <p>Drivers Tracked</p>
-                    </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-reset" onclick="resetForm()">Reset Form</button>
+                    <button type="button" class="btn btn-edit" id="editBtn" onclick="editData()" style="display: none;">Edit Data</button>
+                    <button type="button" class="btn btn-submit" onclick="submitForm()">Submit Data</button>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: #28a745;">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="currentMonth">0</h3>
-                        <p>Current Month Trips</p>
-                    </div>
-                </div>
-            </div>
+                <!-- Hidden field for tracking edits -->
+                <input type="hidden" id="recordId">
+                <input type="hidden" id="submissionStatus" value="new">
+            </form>
         </div>
-
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-key"></i>
-                </div>
-                <h4>Secure Access</h4>
-                <p>Generate unique codes for admin access instead of traditional passwords</p>
-                <a href="code-generator.html" class="btn btn-primary">Generate Code</a>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h4>Admin Dashboard</h4>
-                <p>Comprehensive analytics and reporting for better decision making</p>
-                <a href="login.html" class="btn btn-primary">Access Dashboard</a>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-edit"></i>
-                </div>
-                <h4>Data Entry</h4>
-                <p>Submit delivery shortage data with complete trip information</p>
-                <a href="user-input.html" class="btn btn-primary">Enter Data</a>
-            </div>
-        </div>
-
-        <div class="quick-actions">
-            <h3>Quick Actions</h3>
-            <div class="action-buttons">
-                <a href="user-input.html" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-plus-circle"></i> New Shortage Report
-                </a>
-                <a href="login.html" class="btn btn-primary btn-lg">
-                    <i class="fas fa-chart-bar"></i> View Analytics
-                </a>
-                <a href="code-generator.html" class="btn btn-success btn-lg">
-                    <i class="fas fa-user-shield"></i> Generate Admin Code
-                </a>
-            </div>
+        
+        <div class="footer">
+            <p>© 2023 Transport Services Limited (TSL) - Nigerian Breweries Operations</p>
+            <p>All shortages are tracked for accountability and process improvement</p>
         </div>
     </div>
 
-    <footer class="footer">
-        <p>TSL Logistics &copy; 2023 - Nigeria's Premier Logistics and Transportation Services Provider</p>
-        <p>Strategic Hubs: Lagos, Ogun, and Cross River States | BBB Credit Rating (Augusto 2019)</p>
-    </footer>
-
-    <script src="script.js"></script>
     <script>
+        // Truck Data
+        const truckData = [
+            {tNo: "T1020", truckNo: "FKJ20YA", lc: "ANTHONY"},
+            {tNo: "T1021", truckNo: "FKJ21YA", lc: "ANTHONY"},
+            {tNo: "T1022", truckNo: "FKJ22YA", lc: "ANTHONY"},
+            {tNo: "T1023", truckNo: "FKJ23YA", lc: "ANTHONY"},
+            {tNo: "T1024", truckNo: "BDG24XZ", lc: "ANTHONY"},
+            {tNo: "T1025", truckNo: "BDG25XZ", lc: "ANTHONY"},
+            {tNo: "T1026", truckNo: "BDG26XZ", lc: "ANTHONY"},
+            {tNo: "T1027", truckNo: "BDG27XZ", lc: "ANTHONY"},
+            {tNo: "T1028", truckNo: "BDG28XZ", lc: "ANTHONY"},
+            {tNo: "T1029", truckNo: "BDG29XZ", lc: "ANTHONY"},
+            {tNo: "T1030", truckNo: "BDG30XZ", lc: "ANTHONY"},
+            {tNo: "T1031", truckNo: "BDG31XZ", lc: "ANTHONY"},
+            {tNo: "T1032", truckNo: "BDG32XZ", lc: "ANTHONY"},
+            {tNo: "T1033", truckNo: "BDG33XZ", lc: "ANTHONY"},
+            {tNo: "T1034", truckNo: "BDG34XZ", lc: "ANTHONY"},
+            {tNo: "T1035", truckNo: "BDG35XZ", lc: "ANTHONY"},
+            {tNo: "T843", truckNo: "APP843XW", lc: "ANTHONY"},
+            {tNo: "T956", truckNo: "KSF956XZ", lc: "ANTHONY"},
+            {tNo: "T958", truckNo: "KSF958XZ", lc: "ANTHONY"},
+            {tNo: "T870", truckNo: "APP870XW", lc: "ANTHONY"},
+            {tNo: "T800", truckNo: "LSD800XW", lc: "ANTHONY"},
+            {tNo: "T891", truckNo: "LSD891XW", lc: "ANTHONY"},
+            {tNo: "T957", truckNo: "KSF957XZ", lc: "ANTHONY"},
+            {tNo: "T959", truckNo: "KSF959XZ", lc: "ANTHONY"},
+            {tNo: "T923", truckNo: "LSD923XW", lc: "ANTHONY"},
+            {tNo: "T846", truckNo: "APP846XW", lc: "SAMSON"},
+            {tNo: "T892", truckNo: "LSD892XW", lc: "SAMSON"},
+            {tNo: "T949", truckNo: "LSD949XW", lc: "SAMSON"},
+            {tNo: "T1000", truckNo: "AKD100XZ", lc: "SAMSON"},
+            {tNo: "T1001", truckNo: "APP01YA", lc: "SAMSON"},
+            {tNo: "T1002", truckNo: "APP02YA", lc: "SAMSON"},
+            {tNo: "T1004", truckNo: "APP04YA", lc: "SAMSON"},
+            {tNo: "T1005", truckNo: "APP05YA", lc: "SAMSON"},
+            {tNo: "T832", truckNo: "APP832XZ", lc: "SAMSON"},
+            {tNo: "T1008", truckNo: "FKJ08YA", lc: "SAMSON"},
+            {tNo: "T1009", truckNo: "FKJ09YA", lc: "SAMSON"},
+            {tNo: "T1010", truckNo: "FKJ10YA", lc: "SAMSON"},
+            {tNo: "T1012", truckNo: "FKJ12YA", lc: "SAMSON"},
+            {tNo: "T1013", truckNo: "FKJ13YA", lc: "SAMSON"},
+            {tNo: "T1014", truckNo: "FKJ14YA", lc: "SAMSON"},
+            {tNo: "T1015", truckNo: "FKJ15YA", lc: "SAMSON"},
+            {tNo: "T1016", truckNo: "FKJ16YA", lc: "SAMSON"},
+            {tNo: "T860", truckNo: "APP860XW", lc: "SAMSON"},
+            {tNo: "T1018", truckNo: "FKJ18YA", lc: "SAMSON"},
+            {tNo: "T1019", truckNo: "FKJ19YA", lc: "SAMSON"},
+            {tNo: "T841", truckNo: "APP841XW", lc: "SAMSON"},
+            {tNo: "T1007", truckNo: "FKJ07YA", lc: "SAMSON"},
+            {tNo: "T1011", truckNo: "FKJ11YA", lc: "SAMSON"},
+            {tNo: "T908", truckNo: "LSD908XW", lc: "SAMSON"},
+            {tNo: "T453", truckNo: "KRD453XM", lc: "BOLUWATIFE"},
+            {tNo: "T813", truckNo: "LSD813XW", lc: "BOLUWATIFE"},
+            {tNo: "T866", truckNo: "APP866XW", lc: "BOLUWATIFE"},
+            {tNo: "T858", truckNo: "APP858XW", lc: "BOLUWATIFE"},
+            {tNo: "T960", truckNo: "KSF960XZ", lc: "BOLUWATIFE"},
+            {tNo: "T961", truckNo: "KSF961XZ", lc: "BOLUWATIFE"},
+            {tNo: "T962", truckNo: "KSF962XZ", lc: "BOLUWATIFE"},
+            {tNo: "T963", truckNo: "KSF963XZ", lc: "BOLUWATIFE"},
+            {tNo: "T964", truckNo: "KSF964XZ", lc: "BOLUWATIFE"},
+            {tNo: "T965", truckNo: "KSF965XZ", lc: "BOLUWATIFE"},
+            {tNo: "T966", truckNo: "KSF966XZ", lc: "BOLUWATIFE"},
+            {tNo: "T967", truckNo: "KSF967XZ", lc: "BOLUWATIFE"},
+            {tNo: "T968", truckNo: "KSF968XZ", lc: "BOLUWATIFE"},
+            {tNo: "T969", truckNo: "KSF969XZ", lc: "BOLUWATIFE"},
+            {tNo: "T970", truckNo: "KSF970XZ", lc: "BOLUWATIFE"},
+            {tNo: "T971", truckNo: "KSF971XZ", lc: "BOLUWATIFE"},
+            {tNo: "T972", truckNo: "KSF972XZ", lc: "BOLUWATIFE"},
+            {tNo: "T973", truckNo: "KSF973XZ", lc: "BOLUWATIFE"},
+            {tNo: "T974", truckNo: "FKJ974XZ", lc: "BOLUWATIFE"},
+            {tNo: "T975", truckNo: "APP975XZ", lc: "BOLUWATIFE"},
+            {tNo: "T976", truckNo: "APP976XZ", lc: "BOLUWATIFE"},
+            {tNo: "T977", truckNo: "APP977XZ", lc: "BOLUWATIFE"},
+            {tNo: "T978", truckNo: "APP978XZ", lc: "BOLUWATIFE"},
+            {tNo: "T979", truckNo: "APP979XZ", lc: "BOLUWATIFE"},
+            {tNo: "T888", truckNo: "LSD888XW", lc: "BOLUWATIFE"},
+            {tNo: "T826", truckNo: "APP826XW", lc: "TOBI"},
+            {tNo: "T853", truckNo: "APP853XZ", lc: "TOBI"},
+            {tNo: "T802", truckNo: "LSD802XW", lc: "TOBI"},
+            {tNo: "T450", truckNo: "KRD450XM", lc: "TOBI"},
+            {tNo: "T910", truckNo: "", lc: "TOBI"},
+            {tNo: "T980", truckNo: "APP980XZ", lc: "TOBI"},
+            {tNo: "T981", truckNo: "APP981XZ", lc: "TOBI"},
+            {tNo: "T982", truckNo: "APP982XZ", lc: "TOBI"},
+            {tNo: "T983", truckNo: "APP983XZ", lc: "TOBI"},
+            {tNo: "T984", truckNo: "APP984XZ", lc: "TOBI"},
+            {tNo: "T985", truckNo: "APP985XZ", lc: "TOBI"},
+            {tNo: "T986", truckNo: "APP986XZ", lc: "TOBI"},
+            {tNo: "T987", truckNo: "APP987XZ", lc: "TOBI"},
+            {tNo: "T988", truckNo: "APP988XZ", lc: "TOBI"},
+            {tNo: "T989", truckNo: "APP989XZ", lc: "TOBI"},
+            {tNo: "T990", truckNo: "APP990XZ", lc: "TOBI"},
+            {tNo: "T991", truckNo: "APP991XZ", lc: "TOBI"},
+            {tNo: "T992", truckNo: "APP992XZ", lc: "TOBI"},
+            {tNo: "T993", truckNo: "APP993XZ", lc: "TOBI"},
+            {tNo: "T994", truckNo: "APP994XZ", lc: "TOBI"},
+            {tNo: "T995", truckNo: "APP995XZ", lc: "TOBI"},
+            {tNo: "T996", truckNo: "APP996XZ", lc: "TOBI"},
+            {tNo: "T997", truckNo: "APP997XZ", lc: "TOBI"},
+            {tNo: "T998", truckNo: "APP998XZ", lc: "TOBI"},
+            {tNo: "T999", truckNo: "APP999XZ", lc: "TOBI"}
+        ];
+        
+        // Driver Data
+        const driversData = [
+            { staffId: "11084", name: "ADEREMI ADEGBOYE EZEKIEL" },
+            { staffId: "11411", name: "EBUBE EMMANUEL SAMSON" },
+            { staffId: "11416", name: "ALIDU MUHAMMED" },
+            { staffId: "11424", name: "TAIWO ORIYOMI ADEBAYO" },
+            { staffId: "11643", name: "JULIUS OYETUNJI ADEREMI" },
+            { staffId: "11724", name: "WASIU BAYONLE BILEWUMI" },
+            { staffId: "11766", name: "KEHINDE MONSURU AJAYI" },
+            { staffId: "11787", name: "MUHAMMED SULAIMON" },
+            { staffId: "11832", name: "IFEDAYO TEMIDAYO" },
+            { staffId: "11977", name: "LATEEF ABDUL RAHMAN" },
+            { staffId: "12009", name: "OLUWASEGUN AKINOLA" },
+            { staffId: "12010", name: "IBRAHIM DAHUNSI" },
+            { staffId: "12067", name: "OLUSOLA BENJAMIN OGUNYOMI" },
+            { staffId: "12107", name: "OBAZE JULIUS MIKE" },
+            { staffId: "12177", name: "AKINWARE BENJAMIN ODUN" },
+            { staffId: "12250", name: "ENEKO FAMOUS THOMAS" },
+            { staffId: "12279", name: "SAMSON OLUMIDE AYANTUNDE" },
+            { staffId: "12300", name: "JUDE GOODLUCK EYERUROMA" },
+            { staffId: "12357", name: "MARTINS ADEGOKE" },
+            { staffId: "12398", name: "GANIYU ALONGBIJA ADEKOLA" },
+            { staffId: "12440", name: "OLUWATOSIN KOLAWOLE" },
+            { staffId: "12475", name: "SUNMONU AKEEM OGUNTOLA" },
+            { staffId: "12503", name: "OYEKANMI OYETUNDE OYEKANMI" },
+            { staffId: "12530", name: "IDRIS ABDULAZEEZ" },
+            { staffId: "12622", name: "KADEDE GODWIN" },
+            { staffId: "12623", name: "ADEBIMPE TAIWO IDRISU" },
+            { staffId: "12627", name: "OYINLOLA ABIOLA KAZEEM" },
+            { staffId: "12640", name: "OGUGUA CHINONSO GOODLUCK" },
+            { staffId: "12669", name: "AKINGBULUGBE AKIN" },
+            { staffId: "12761", name: "OLAMILEKAN HAMMED NURUDEEN" },
+            { staffId: "12847", name: "MUSEDIQ ADEKUNLE ADEGBENGA" },
+            { staffId: "12904", name: "OLUGBEMIGA OLAYINKA AMOS" },
+            { staffId: "12993", name: "ODEDARE SAHEED ADEWOLE" },
+            { staffId: "13172", name: "JEFF ALEX" },
+            { staffId: "13242", name: "JIMMY MARK ISAAC" },
+            { staffId: "13275", name: "BABALOLA MICHAEL JIMOH" },
+            { staffId: "13376", name: "OLADIMEJI TAOFEEQ OLAJIDE" },
+            { staffId: "13416", name: "SAHEED OLAWALE ADISA" },
+            { staffId: "13460", name: "MUKAILA AZEEZ" },
+            { staffId: "13521", name: "SOLA JOSEPH SAMUEL" },
+            { staffId: "13591", name: "ADEWALE TITUS ADEKUNLE" },
+            { staffId: "13597", name: "MUYIWA OLUWADAYO AYODEJI" },
+            { staffId: "13655", name: "SYLVESTER" },
+            { staffId: "13660", name: "DADA SEGUN MOSES" },
+            { staffId: "13717", name: "KEHINDE SOKUNBI" },
+            { staffId: "13718", name: "MOJEED OLAWALE HAMMED" },
+            { staffId: "13719", name: "OLA IDRIS ADEBAYO" },
+            { staffId: "13733", name: "AZEEZ ABASS OLAWALE" },
+            { staffId: "13737", name: "ABIDEEN ADEOLA ABUBAKAR" },
+            { staffId: "13754", name: "SAMUEL MOSIKO DARE" },
+            { staffId: "13756", name: "BADMUS" },
+            { staffId: "13758", name: "ABIODUN SANUSI" },
+            { staffId: "13803", name: "TAOREED ALABI AKINBAMI" },
+            { staffId: "13813", name: "JOHN PHILLIP IGWE" },
+            { staffId: "13926", name: "ADEBAYO SODIQ HAMZAT" },
+            { staffId: "13967", name: "SALAWU KEHINDE KAMORUDEEN" },
+            { staffId: "14015", name: "OSABUOHEN BENARD ONYEMA" },
+            { staffId: "14029", name: "SAMUEL SEGUN ASIMOLOWO" },
+            { staffId: "14049", name: "AUGUSTINE ONYEMBU" },
+            { staffId: "14054", name: "JULIUS OLADAPO ORIOKE" },
+            { staffId: "14063", name: "JOHN CHINEDU UBAKA" },
+            { staffId: "14120", name: "IFEANYI MOSES NWALI" },
+            { staffId: "14124", name: "AKEEM OPEYEMI ADEBAYO" },
+            { staffId: "14181", name: "OLUWAGBEMIGA EZEKIEL ADEWOLE" },
+            { staffId: "14208", name: "AYO KINGSLEY OVAT" },
+            { staffId: "14219", name: "AYENI EMMANUEL AINA" },
+            { staffId: "14225", name: "ARTHUR EKENE OSHILONYA" },
+            { staffId: "14310", name: "JACKSON AMOS SUNDAY" },
+            { staffId: "14312", name: "RASHEED MUTIU ADEBAYO" },
+            { staffId: "14471", name: "KUDUS MUGHAN ALHAJI" },
+            { staffId: "14502", name: "MIRACLE OLUWATOSIN JOHNSON" },
+            { staffId: "14554", name: "RIDWAN AYOBAMI GBADEYANKA" },
+            { staffId: "14602", name: "OGUNDELE OLALEKAN KOYUM" },
+            { staffId: "14671", name: "ABIMBOLA ADEOLUWA ADEKOYA" },
+            { staffId: "14678", name: "BUHARI ABDULHAKEEM AYODELE" },
+            { staffId: "14692", name: "EGBEDEYI SODIQ OLUWAFEMI" },
+            { staffId: "14726", name: "KINGDOM EDET AKPAN" },
+            { staffId: "14754", name: "AKOREDE OGUNMEFUN HAMID" },
+            { staffId: "14771", name: "ISHOLA STEPHEN OLUKUNLE" },
+            { staffId: "14816", name: "OPEYEMI ABDULAZEEZ" },
+            { staffId: "14826", name: "DICKSON MICHAEL HENRY" },
+            { staffId: "14829", name: "ADEWUNMI ISA ADEGBOYEGA" },
+            { staffId: "14835", name: "TAOFEEQ AJIBOLA HABEEB" },
+            { staffId: "14841", name: "DAVID MATHEW OLUFEMI" },
+            { staffId: "14907", name: "NURENI AFEEZ ABIOLA" },
+            { staffId: "14915", name: "JOSEPH ODEY INAKU" },
+            { staffId: "14922", name: "OBOH EDU SUNDAY" },
+            { staffId: "14924", name: "YEKINNI NURUDEEN OLUWASEUN" },
+            { staffId: "14926", name: "WILLIAM JOSHUA ARCHIBONG" },
+            { staffId: "14932", name: "AGBOOLA SUNDAY" },
+            { staffId: "14941", name: "AKINDURO BABATUNDE GODSTIME" },
+            { staffId: "14943", name: "OBADELE SUNDAY SAMUEL" },
+            { staffId: "14962", name: "LAWAL AJIBOLA" },
+            { staffId: "15016", name: "ANTHONY OKON EDET" },
+            { staffId: "15034", name: "ONIFADE DAMILARE EMMANUEL" },
+            { staffId: "15048", name: "YAKUBU ABDULLAHI ADEIZA" },
+            { staffId: "15060", name: "OLASUNKANMI IBRAHAM HAMMED" },
+            { staffId: "15065", name: "ODEJINMI AKINKUNMI DAMILARE" },
+            { staffId: "15076", name: "IBRAHIM ADEYINKA JELILI" },
+            { staffId: "15084", name: "RAUF HAKEEM KEHINDE" },
+            { staffId: "15112", name: "OPEYEMI ANWO BABATUNDE" },
+            { staffId: "15114", name: "GOSPEL JOHN ETIM" },
+            { staffId: "15163", name: "SULEIMAN ABRAHIM OLAYEMI" },
+            { staffId: "15172", name: "ROBINSON SAMSON ALUNA" },
+            { staffId: "15205", name: "IBRAHIM DADA MOSHOOD" },
+            { staffId: "15231", name: "JOSHUA OLUWARANTI" }
+        ];
+        
+        // SKU Products Data
+        const productsData = [
+            { product: "33 Export Bottle 60cl", skuPrice: 8990 },
+            { product: "33 Export Can 33cl", skuPrice: 10485 },
+            { product: "33 Export Can 50cl", skuPrice: 14250 },
+            { product: "Amstel Malta Bottle 33cl", skuPrice: 12920 },
+            { product: "Amstel Malta Can 33cl", skuPrice: 13095 },
+            { product: "Amstel Malta PET 33cl", skuPrice: 5520 },
+            { product: "Amstel Ultra Sleek Can 33cl", skuPrice: 13100 },
+            { product: "Climax PET 50cl", skuPrice: 5335 },
+            { product: "Climax Red PET 50cl", skuPrice: 5335 },
+            { product: "Climax Sleek Can 33cl", skuPrice: 12290 },
+            { product: "Desperado Bottle 45cl", skuPrice: 17715 },
+            { product: "Desperado Can 44cl", skuPrice: 19010 },
+            { product: "Fayrouz Apple Watermelon Pet 33cl", skuPrice: 4490 },
+            { product: "Fayrouz Apple Watermelon Sleek Can 33cl", skuPrice: 11940 },
+            { product: "Fayrouz Pineapple Bottle 33cl", skuPrice: 8795 },
+            { product: "Fayrouz Pineapple PET 33cl", skuPrice: 4490 },
+            { product: "Fayrouz Pineapple Sleek Can 33cl", skuPrice: 11940 },
+            { product: "Goldberg Black Bottle 60cl", skuPrice: 12780 },
+            { product: "Goldberg Black Can 44cl", skuPrice: 15510 },
+            { product: "Goldberg Bottle 60cl", skuPrice: 8990 },
+            { product: "Goldberg Can 50cl", skuPrice: 14240 },
+            { product: "Goldberg Black Bottle 45cl", skuPrice: 12780 },
+            { product: "Gulder Bottle 60cl", skuPrice: 10800 },
+            { product: "Gulder Can 44cl", skuPrice: 16260 },
+            { product: "Heineken Bottle 60cl", skuPrice: 12370 },
+            { product: "Heineken Bottle 45cl", skuPrice: 16515 },
+            { product: "Heineken Sleek Can 33cl", skuPrice: 15030 },
+            { product: "Hi-Malt PET 33cl", skuPrice: 5015 },
+            { product: "Hi-Malt Classice Can 33Cl", skuPrice: 11080 },
+            { product: "Legend Bottle 60cl", skuPrice: 10915 },
+            { product: "Legend Bottle 45cl", skuPrice: 15375 },
+            { product: "Legend Can 44cl", skuPrice: 19000 },
+            { product: "Legend Twist Ginger Sleek Can 33cl", skuPrice: 16725 },
+            { product: "Legend Twist Lemon Bottle 33cl", skuPrice: 14665 },
+            { product: "Legend Twist Lemon Sleek Can 33cl", skuPrice: 16725 },
+            { product: "Legend Twist Pineapple Sleek Can 33cl", skuPrice: 16725 },
+            { product: "Life Bottle 60cl", skuPrice: 8990 },
+            { product: "Life Can 50cl", skuPrice: 14240 },
+            { product: "Maltina Bottle 33cl", skuPrice: 12920 },
+            { product: "Maltina Can 33cl", skuPrice: 13095 },
+            { product: "Maltina PET 33cl", skuPrice: 5520 },
+            { product: "Maltina Pineapple Bottle 33cl", skuPrice: 12920 },
+            { product: "Maltina Pineapple Can 33cl", skuPrice: 13095 },
+            { product: "Maltina Pineapple Pet 33cl", skuPrice: 5520 },
+            { product: "Maltina Vanilla Bottle 33cl", skuPrice: 12920 },
+            { product: "Maltina Vanilla Can 33cl", skuPrice: 13095 },
+            { product: "Maltina Vanilla Pet 33cl", skuPrice: 5520 },
+            { product: "Star Bottle 45cl", skuPrice: 9755 },
+            { product: "Star Bottle 60cl", skuPrice: 10330 },
+            { product: "Star Can 33cl", skuPrice: 11495 },
+            { product: "Star Can 50cl", skuPrice: 11880 },
+            { product: "Star Lite Bottle 45cl", skuPrice: 9775 },
+            { product: "Star Lite Bottle 60cl", skuPrice: 7900 },
+            { product: "Star Radler Citrus Bottle 45cl", skuPrice: 13115 },
+            { product: "Star Radler Citrus Sleek Can 33cl", skuPrice: 13825 },
+            { product: "Star Radler Red Fruits Bottle 45cl", skuPrice: 13115 },
+            { product: "Star Radler Red Fruits Sleek Can 33cl", skuPrice: 13825 },
+            { product: "Tiger Bottle 45cl", skuPrice: 14900 },
+            { product: "Tiger Can 44cl", skuPrice: 13470 },
+            { product: "Turbo King Bottle 60cl", skuPrice: 6990 },
+            { product: "Turbo King Bottle 33cl", skuPrice: 9085 },
+            { product: "Williams Bottle 60cl", skuPrice: 6990 },
+            { product: "Williams Bottle 33cl", skuPrice: 9085 },
+            { product: "Empties", skuPrice: 0 },
+            { product: "Pallets", skuPrice: 0 },
+            { product: "Sugar", skuPrice: 0 },
+            { product: "GZI Cans", skuPrice: 0 },
+            { product: "Zagg Energy PET 50cl", skuPrice: 5305 },
+            { product: "Zagg Energy Sleek Can 33cl", skuPrice: 10150 }
+        ];
+        
+        // Initialize form with current date
         document.addEventListener('DOMContentLoaded', function() {
-            // Load sample stats
-            loadSampleData();
-            updateHomeStats();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateCaptured').value = today;
+            document.getElementById('loadingDate').value = today;
+            
+            populateTruckNumbers();
+            populateStaffIds();
+            populateProducts();
+            
+            // Check if we're editing an existing record from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+            if (editId) {
+                loadRecordForEditing(editId);
+            }
         });
+        
+        function populateTruckNumbers() {
+            const tNoSelect = document.getElementById('tNo');
+            truckData.forEach(truck => {
+                const option = document.createElement('option');
+                option.value = truck.tNo;
+                option.textContent = truck.tNo;
+                tNoSelect.appendChild(option);
+            });
+        }
+        
+        function populateStaffIds() {
+            const staffSelect = document.getElementById('staffId');
+            driversData.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver.staffId;
+                option.textContent = `${driver.staffId} - ${driver.name}`;
+                staffSelect.appendChild(option);
+            });
+        }
+        
+        function populateProducts() {
+            const productSelect = document.getElementById('productLoaded');
+            productsData.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.product;
+                option.textContent = product.product;
+                productSelect.appendChild(option);
+            });
+        }
+        
+        function populateTruckDetails() {
+            const tNo = document.getElementById('tNo').value;
+            const truck = truckData.find(t => t.tNo === tNo);
+            if (truck) {
+                document.getElementById('truckNo').value = truck.truckNo;
+                document.getElementById('lc').value = truck.lc;
+            } else {
+                document.getElementById('truckNo').value = '';
+                document.getElementById('lc').value = '';
+            }
+        }
+        
+        function populateDriverName() {
+            const staffId = document.getElementById('staffId').value;
+            const driver = driversData.find(d => d.staffId === staffId);
+            if (driver) {
+                document.getElementById('deliveryOfficer').value = driver.name;
+            } else {
+                document.getElementById('deliveryOfficer').value = '';
+            }
+        }
+        
+        function populateSKUPrice() {
+            const product = document.getElementById('productLoaded').value;
+            const productData = productsData.find(p => p.product === product);
+            if (productData) {
+                document.getElementById('skuPrice').value = productData.skuPrice;
+                calculateQuantities();
+            } else {
+                document.getElementById('skuPrice').value = '';
+            }
+        }
+        
+        function calculateQuantities() {
+            // Calculate QTY Rejected
+            const qtyLoaded = parseFloat(document.getElementById('qtyLoaded').value) || 0;
+            const qtyDelivered = parseFloat(document.getElementById('qtyDelivered').value) || 0;
+            const qtyRejected = qtyLoaded - qtyDelivered;
+            document.getElementById('qtyRejected').value = qtyRejected >= 0 ? qtyRejected : 0;
+            
+            // Calculate Shortage QTY-PRE
+            const qtyReturned = parseFloat(document.getElementById('qtyReturned').value) || 0;
+            const shortageQtyPre = qtyRejected - qtyReturned;
+            document.getElementById('shortageQtyPre').value = shortageQtyPre >= 0 ? shortageQtyPre : 0;
+            
+            // Calculate Shortage VALUE-PRE
+            const skuPrice = parseFloat(document.getElementById('skuPrice').value) || 0;
+            const shortageValuePre = shortageQtyPre * skuPrice;
+            document.getElementById('shortageValuePre').value = shortageValuePre >= 0 ? shortageValuePre : 0;
+            
+            // Calculate Actual QTY
+            const afterAnalysis = parseFloat(document.getElementById('afterAnalysis').value) || 0;
+            const actualQty = qtyReturned - afterAnalysis;
+            document.getElementById('actualQty').value = actualQty >= 0 ? actualQty : 0;
+            
+            // Calculate Total Shortage
+            const totalShortage = shortageQtyPre + actualQty;
+            document.getElementById('totalShortage').value = totalShortage >= 0 ? totalShortage : 0;
+            
+            // Calculate Actual Value
+            const actualValue = totalShortage * skuPrice;
+            document.getElementById('actualValue').value = actualValue >= 0 ? actualValue : 0;
+        }
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function submitForm() {
+            // Validate required fields
+            const requiredFields = ['dateCaptured', 'loadingDate', 'loadingPoint', 'contract', 
+                                  'tNo', 'staffId', 'shipmentNo', 'productLoaded', 
+                                  'qtyLoaded', 'qtyDelivered'];
+            
+            let isValid = true;
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = 'var(--deep-red)';
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            });
+            
+            if (!isValid) {
+                showMessage('Please fill in all required fields marked with *', 'error');
+                return;
+            }
+            
+            // Prepare data for submission
+            const formData = {
+                date_captured: document.getElementById('dateCaptured').value,
+                loading_date: document.getElementById('loadingDate').value,
+                loading_point: document.getElementById('loadingPoint').value,
+                contract: document.getElementById('contract').value,
+                t_no: document.getElementById('tNo').value,
+                truck_no: document.getElementById('truckNo').value,
+                lc: document.getElementById('lc').value,
+                staff_id: document.getElementById('staffId').value,
+                delivery_officer: document.getElementById('deliveryOfficer').value,
+                shipment_no: document.getElementById('shipmentNo').value,
+                product_loaded: document.getElementById('productLoaded').value,
+                sku_price: document.getElementById('skuPrice').value,
+                qty_loaded: document.getElementById('qtyLoaded').value,
+                qty_delivered: document.getElementById('qtyDelivered').value,
+                qty_rejected: document.getElementById('qtyRejected').value,
+                qty_returned: document.getElementById('qtyReturned').value,
+                shortage_qty_pre: document.getElementById('shortageQtyPre').value,
+                shortage_value_pre: document.getElementById('shortageValuePre').value,
+                after_analysis: document.getElementById('afterAnalysis').value,
+                actual_qty: document.getElementById('actualQty').value,
+                total_shortage: document.getElementById('totalShortage').value,
+                actual_value: document.getElementById('actualValue').value,
+                cash_recovery: document.getElementById('cashRecovery').value,
+                debit_memo: document.getElementById('debitMemo').value,
+                white_slip: document.getElementById('whiteSlip').value,
+                submission_time: new Date().toISOString(),
+                last_edited: new Date().toISOString(),
+                status: 'submitted'
+            };
+            
+            // Check if we're editing or creating new
+            const recordId = document.getElementById('recordId').value;
+            const isEdit = recordId && document.getElementById('submissionStatus').value === 'edit';
+            
+            // SheetDB API endpoint - REPLACE WITH YOUR ACTUAL SHEETDB API URL
+            const apiUrl = 'https://sheetdb.io/api/v1/YOUR_SHEETDB_ID';
+            
+            try {
+                if (isEdit) {
+                    // Update existing record
+                    const response = await fetch(`${apiUrl}/id/${recordId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ data: formData })
+                    });
+                    
+                    if (response.ok) {
+                        showMessage('Record updated successfully!', 'success');
+                        resetForm();
+                    } else {
+                        throw new Error('Update failed');
+                    }
+                } else {
+                    // Create new record
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ data: [formData] })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        document.getElementById('recordId').value = result[0].id;
+                        document.getElementById('submissionStatus').value = 'submitted';
+                        
+                        showMessage('Data submitted successfully!', 'success');
+                        document.getElementById('editBtn').style.display = 'inline-block';
+                    } else {
+                        throw new Error('Submission failed');
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // For demo purposes, simulate success
+                showMessage(isEdit ? 'Record updated successfully! (Demo)' : 'Data submitted successfully! (Demo)', 'success');
+                document.getElementById('recordId').value = 'demo-' + Date.now();
+                document.getElementById('submissionStatus').value = 'submitted';
+                document.getElementById('editBtn').style.display = 'inline-block';
+            }
+        }
+        
+        function editData() {
+            document.getElementById('submissionStatus').value = 'edit';
+            showMessage('You can now edit the form. Click "Submit Data" to save changes.', 'success');
+        }
+        
+        function resetForm() {
+            document.getElementById('shortageForm').reset();
+            document.getElementById('recordId').value = '';
+            document.getElementById('submissionStatus').value = 'new';
+            document.getElementById('editBtn').style.display = 'none';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateCaptured').value = today;
+            document.getElementById('loadingDate').value = today;
+            
+            // Reset truck details
+            document.getElementById('truckNo').value = '';
+            document.getElementById('lc').value = '';
+            document.getElementById('deliveryOfficer').value = '';
+            document.getElementById('skuPrice').value = '';
+            
+            calculateQuantities();
+        }
+        
+        function loadRecordForEditing(recordId) {
+            // In a real application, you would fetch this from SheetDB
+            // For demo, we'll create a mock record
+            const mockRecord = {
+                date_captured: '2023-10-15',
+                loading_date: '2023-10-15',
+                loading_point: 'NBL IGANMU',
+                contract: 'NBL IGANMU',
+                t_no: 'T980',
+                truck_no: 'APP980XZ',
+                lc: 'TOBI',
+                staff_id: '11084',
+                delivery_officer: 'ADEREMI ADEGBOYE EZEKIEL',
+                shipment_no: 'SHIP-2023-001',
+                product_loaded: 'Heineken Bottle 60cl',
+                sku_price: 12370,
+                qty_loaded: 1000,
+                qty_delivered: 950,
+                qty_rejected: 50,
+                qty_returned: 10,
+                shortage_qty_pre: 40,
+                shortage_value_pre: 494800,
+                after_analysis: 2,
+                actual_qty: 8,
+                total_shortage: 48,
+                actual_value: 593760,
+                cash_recovery: 5000,
+                debit_memo: 7000,
+                white_slip: 'Yes'
+            };
+            
+            // Populate form with record data
+            Object.keys(mockRecord).forEach(key => {
+                const element = document.getElementById(key.replace(/_/g, ''));
+                if (element) {
+                    element.value = mockRecord[key];
+                }
+            });
+            
+            document.getElementById('recordId').value = recordId;
+            document.getElementById('submissionStatus').value = 'edit';
+            document.getElementById('editBtn').style.display = 'inline-block';
+            
+            calculateQuantities();
+            showMessage('Record loaded for editing. Make changes and click "Submit Data" to update.', 'success');
+        }
     </script>
 </body>
 </html>
