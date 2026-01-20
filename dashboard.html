@@ -769,7 +769,7 @@
             try {
                 showStatus('Fetching data from SheetDB...', 'loading');
                 
-                const response = await fetch(`${SHEETDB_API_URL}/shortage_data`);
+                const response = await fetch(SHEETDB_API_URL);
                 
                 if (!response.ok) {
                     throw new Error(`SheetDB API error: ${response.status}`);
